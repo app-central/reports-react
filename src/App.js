@@ -24,8 +24,9 @@ function App() {
     })
     console.log(reportsArr);
     sortRep(reportsArr);
-
+    daysCheck();
     setData(reportsArr);
+
 
   }
 
@@ -33,6 +34,7 @@ function App() {
     return fetch('https://pqzj791d65.execute-api.us-east-1.amazonaws.com/default/reports-json')
       .then(data => data.json())
   }
+  
 
   function sortRep(arr) {
     if (order === "lth") {
@@ -53,18 +55,37 @@ function App() {
 
   }
 
-  const updateDates = (day) =>{
-    let newDates = [...dates, day];
+  const daysCheck = () =>{
+    let newDates = [];
+
+    let lastDate = 0;
+    for (let i = 0; i < data.length; i++) {
+      if(data[i].date === lastDate){
+        lastDate = data[i].date;
+        newDates = [...newDates, i]     
+       }else{
+        continue;
+      }
+    }
+    console.log("new dates" + newDates);
     setDates(newDates);
   }
 
-  const getDate = (day) => {
-    for (let i = 0; i < dates.length; i++) {
-      if (day === dates[i]) {
-        return "";
-      }
-    }
+  
 
+  const getDate = (day,index) => {
+    // for (let i = 0; i < dates.length; i++) {
+    //   if(dates[i] == index){
+    //     return "";
+    //   }
+    // }
+   if(day === dates){
+
+      return "";
+   }else{
+     
+   }
+    
 
 
     if ((today - day) === 0){
@@ -95,7 +116,7 @@ function App() {
           {
             data.map((line, index) => {
               return (
-                <th>{line.app} {getDate(line.day)}
+                <th>{line.app} {getDate(line.day,index)}
                 </th>
               )
             })
