@@ -18,7 +18,7 @@ function App() {
 
     console.log(lambdaReport)
 
-    reports.map((line) => {
+    lambdaReport.map((line) => {
       reportsArr = [...reportsArr, line]
     })
     console.log(reportsArr);
@@ -27,35 +27,169 @@ function App() {
     setData(reportsArr)
   }
 
-  async function getDataFromLambda(){
+  async function getDataFromLambda() {
     return fetch('https://pqzj791d65.execute-api.us-east-1.amazonaws.com/default/reports-json')
-    .then(data => data.json())
+      .then(data => data.json())
   }
 
   function sortRep(arr) {
-    if(order === "lth"){
+    if (order === "lth") {
       arr.sort((day1, day2) => {
-        if (day1["day (N)"] < day2["day (N)"])
+        if (day1.day < day2.day)
           return -1;
-        if (day1["day (N)"] > day2["day (N)"])
+        if (day1.day > day2.day)
           return 1;
-      });  
-    }else if(order === "htl"){
+      });
+    } else if (order === "htl") {
       arr.sort((day1, day2) => {
-        if (day1["day (N)"] > day2["day (N)"])
+        if (day1.day > day2.day)
           return -1;
-        if (day1["day (N)"] < day2["day (N)"])
+        if (day1.day < day2.day)
           return 1;
-      });  
+      });
     }
-    
+
   }
 
   return (
     <div className="App">
       <h1> Reports</h1>
-      
+
       <button onClick={() => { getData() }}> show reports</button>
+
+      <table>
+        <tr>
+          <th></th>
+          {
+            data.map((line, index) => {
+              return (
+                <th>{line.app} {line.day}</th>
+              )
+            })
+          }
+
+          <th></th>
+        </tr>
+
+        <tr>
+          <th>PaymentSheetView_appear_NATIVE</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.PaymentSheetView_appear_NATIVE}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>app_launch_NATIVE</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.app_launch_NATIVE}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>app_launch_SDK</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.app_launch_SDK}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>approve_NATIVE</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.approve_NATIVE}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>approve_SDK</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.approve_SDK}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>fail_NATIVE</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.fail_NATIVE}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>fail_SDK</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.fail_SDK}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>pop_SDK</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.pop_SDK}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>purchase_NATIVE</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.purchase_NATIVE}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>purchase_SDK</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.purchase_SDK}</td>
+              )
+            })
+          }
+        </tr>
+        <tr>
+          <th>first_launch</th>
+          {
+            data.map((line, index) => {
+              return (
+                <td>{line.first_launch}</td>
+              )
+            })
+          }
+        </tr>
+
+      </table>
+      <br />
+      <br />
+
+      <br />
+      <br />
+
+{/* 
       <table>
         <tr>
           <th>app (S)</th>
@@ -77,19 +211,19 @@ function App() {
           data.map((line, index) => {
             return (
               <tr>
-                <td>{line["app (S)"]}</td>
-                <td>{line["day (N)"]}</td>
-                <td>{line["PaymentSheetView_appear_NATIVE (N)"]}</td>
-                <td>{line["app_launch_NATIVE (N)"]}</td>
-                <td>{line["app_launch_SDK (N)"]}</td>
-                <td>{line["approve_NATIVE (N)"]}</td>
-                <td>{line["approve_SDK (N)"]}</td>
-                <td>{line["fail_NATIVE (N)"]}</td>
-                <td>{line["fail_SDK (N)"]}</td>
-                <td>{line["pop_SDK (N)"]}</td>
-                <td>{line["purchase_NATIVE (N)"]}</td>
-                <td>{line["purchase_SDK (N)"]}</td>
-                <td>{line["first_launch (N)"]}</td>
+                <td>{line.app}</td>
+                <td>{line["day"]}</td>
+                <td>{line.PaymentSheetView_appear_NATIVE}</td>
+                <td>{line.app_launch_NATIVE}</td>
+                <td>{line.app_launch_SDK}</td>
+                <td>{line["approve_NATIVE"]}</td>
+                <td>{line["approve_SDK"]}</td>
+                <td>{line["fail_NATIVE"]}</td>
+                <td>{line["fail_SDK"]}</td>
+                <td>{line["pop_SDK"]}</td>
+                <td>{line["purchase_NATIVE"]}</td>
+                <td>{line["purchase_SDK"]}</td>
+                <td>{line["first_launch"]}</td>
 
               </tr>
 
@@ -97,7 +231,7 @@ function App() {
 
           })
         }
-      </table>
+      </table> */}
 
     </div>
   );
