@@ -5,11 +5,12 @@ import './App.css';
 import Line from './components/Line';
 
 
-
+const today = Math.floor(Date.now() / 86400000);
 function App() {
 
-  const [data, setData] = useState([1, 2, 3, 4])
+  const [data, setData] = useState([])
   const [order, setOrder] = useState('htl')
+  const [dates, setDates] = useState([])
 
   async function getData() {
     let reportsArr = [];
@@ -24,7 +25,8 @@ function App() {
     console.log(reportsArr);
     sortRep(reportsArr);
 
-    setData(reportsArr)
+    setData(reportsArr);
+
   }
 
   async function getDataFromLambda() {
@@ -51,6 +53,36 @@ function App() {
 
   }
 
+  const updateDates = (day) =>{
+    let newDates = [...dates, day];
+    setDates(newDates);
+  }
+
+  const getDate = (day) => {
+    for (let i = 0; i < dates.length; i++) {
+      if (day === dates[i]) {
+        return "";
+      }
+    }
+
+
+
+    if ((today - day) === 0){
+      return "Today"
+
+    }
+    else if (today - day === 1){
+
+      return "Yesterday"
+
+    }
+    else {
+
+      return new Date(day * 86400000).toLocaleDateString()
+
+    }
+  }
+
   return (
     <div className="App">
       <h1> Reports</h1>
@@ -63,7 +95,8 @@ function App() {
           {
             data.map((line, index) => {
               return (
-                <th>{line.app} {line.day}</th>
+                <th>{line.app} {getDate(line.day)}
+                </th>
               )
             })
           }
@@ -189,7 +222,7 @@ function App() {
       <br />
       <br />
 
-{/* 
+      {/* 
       <table>
         <tr>
           <th>app (S)</th>
