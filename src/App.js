@@ -7,6 +7,7 @@ import Line from './components/Line';
 
 const today = Math.floor(Date.now() / 86400000);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
+const PASS_KEY = process.env.REACT_APP_PASS_KEY;
 
 
 function App() {
@@ -14,8 +15,19 @@ function App() {
   const [data, setData] = useState([])
   const [order, setOrder] = useState('htl')
   const [dates, setDates] = useState([])
-  console.log(API_KEY);
+  const [pass, setPass] = useState('')
+
+
+  const login = () =>{
+    if(pass === PASS_KEY){
+      getData();
+    }else{
+      alert("wrong passowrd");
+    }
+  }
+
   async function getData() {
+
     let reportsArr = [];
 
     let lambdaReport = await getDataFromLambda()
@@ -111,7 +123,8 @@ function App() {
     <div className="App">
       <h1> Reports</h1>
 
-      <button onClick={() => { getData() }}> show reports</button>
+      <button onClick={() => { login() }}> show reports</button>
+      <input onChange={(e) => setPass(e.target.value)} >  </input>
 
       <table>
         <tr>
