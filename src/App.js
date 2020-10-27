@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-import reports from './resources/reports.json'
 import './App.css';
-import Line from './components/Line';
+import Login from './components/Login';
+import Table from './components/Table';
 
 
 const today = Math.floor(Date.now() / 86400000);
@@ -11,19 +11,29 @@ const PASS_KEY = process.env.REACT_APP_PASS_KEY;
 
 
 function App() {
-  
+
+  const [start, setStart] = useState(false)
   const [data, setData] = useState([])
   const [order, setOrder] = useState('htl')
-  const [dates, setDates] = useState([])
+  // const [dates, setDates] = useState([])
   const [pass, setPass] = useState('')
 
 
-  const login = () =>{
-    if(pass === PASS_KEY){
+  const login = () => {
+    if (pass === PASS_KEY) {
       getData();
-    }else{
+      setStart(true);
+    } else {
       alert("wrong passowrd");
     }
+  }
+  const logout = () =>{
+    setStart(false)
+    setPass("");
+  }
+
+  const handleSetPass = (p) =>{
+    setPass(p)
   }
 
   async function getData() {
@@ -38,7 +48,7 @@ function App() {
       reportsArr = [...reportsArr, line]
     })
     sortRep(reportsArr);
-    daysCheck();
+    // daysCheck();
     setData(reportsArr);
 
 
@@ -48,7 +58,7 @@ function App() {
     return fetch(API_KEY)
       .then(data => data.json())
   }
-  
+
 
   function sortRep(arr) {
     if (order === "lth") {
@@ -69,43 +79,43 @@ function App() {
 
   }
 
-  const daysCheck = () =>{
-    let newDates = [];
+  // const daysCheck = () =>{
+  //   let newDates = [];
 
-    let lastDate = 0;
-    for (let i = 0; i < data.length; i++) {
-      if(data[i].date === lastDate){
-        lastDate = data[i].date;
-        newDates = [...newDates, i]     
-       }else{
-        continue;
-      }
-    }
-    setDates(newDates);
-  }
+  //   let lastDate = 0;
+  //   for (let i = 0; i < data.length; i++) {
+  //     if(data[i].date === lastDate){
+  //       lastDate = data[i].date;
+  //       newDates = [...newDates, i]     
+  //      }else{
+  //       continue;
+  //     }
+  //   }
+  //   setDates(newDates);
+  // }
 
-  
 
-  const getDate = (day,index) => {
+
+  const getDate = (day, index) => {
     // for (let i = 0; i < dates.length; i++) {
     //   if(dates[i] == index){
     //     return "";
     //   }
     // }
-   if(day === dates){
+    //  if(day === dates){
 
-      return "";
-   }else{
-     
-   }
-    
+    //     return "";
+    //  }else{
+
+    //  }
 
 
-    if ((today - day) === 0){
+
+    if ((today - day) === 0) {
       return "Today"
 
     }
-    else if (today - day === 1){
+    else if (today - day === 1) {
 
       return "Yesterday"
 
@@ -120,188 +130,16 @@ function App() {
   return (
     <div className="App">
       <h1> Reports</h1>
+     <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
+
+      <br />
+      <br />
+
+        <Table data={data} getDate={getDate}  start={start} />
+     
+
       
-      <input type="password" onChange={(e) => setPass(e.target.value)}/>
-
-      <button onClick={() => { login() }}> show reports</button>
-
-      <table>
-        <tr>
-          <th></th>
-          {
-            data.map((line, index) => {
-              return (
-                <th>{line.app} {getDate(line.day,index)}
-                </th>
-              )
-            })
-          }
-
-          <th></th>
-        </tr>
-
-        <tr>
-          <th>PaymentSheetView_appear_NATIVE</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.PaymentSheetView_appear_NATIVE}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>app_launch_NATIVE</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.app_launch_NATIVE}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>app_launch_SDK</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.app_launch_SDK}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>approve_NATIVE</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.approve_NATIVE}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>approve_SDK</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.approve_SDK}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>fail_NATIVE</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.fail_NATIVE}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>fail_SDK</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.fail_SDK}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>pop_SDK</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.pop_SDK}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>purchase_NATIVE</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.purchase_NATIVE}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>purchase_SDK</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.purchase_SDK}</td>
-              )
-            })
-          }
-        </tr>
-        <tr>
-          <th>first_launch</th>
-          {
-            data.map((line, index) => {
-              return (
-                <td>{line.first_launch}</td>
-              )
-            })
-          }
-        </tr>
-
-      </table>
-      <br />
-      <br />
-
-      <br />
-      <br />
-
-      {/* 
-      <table>
-        <tr>
-          <th>app (S)</th>
-          <th>day (N)</th>
-          <th>PaymentSheetView_appear_NATIVE (N)</th>
-          <th>app_launch_NATIVE (N)</th>
-          <th>app_launch_SDK (N)</th>
-          <th>approve_NATIVE (N)</th>
-          <th>approve_SDK (N)</th>
-          <th>fail_NATIVE (N)</th>
-          <th>fail_SDK (N)</th>
-          <th>pop_SDK (N)</th>
-          <th>purchase_NATIVE (N)</th>
-          <th>purchase_SDK (N)</th>
-          <th>first_launch (N)</th>
-        </tr>
-
-        {
-          data.map((line, index) => {
-            return (
-              <tr>
-                <td>{line.app}</td>
-                <td>{line["day"]}</td>
-                <td>{line.PaymentSheetView_appear_NATIVE}</td>
-                <td>{line.app_launch_NATIVE}</td>
-                <td>{line.app_launch_SDK}</td>
-                <td>{line["approve_NATIVE"]}</td>
-                <td>{line["approve_SDK"]}</td>
-                <td>{line["fail_NATIVE"]}</td>
-                <td>{line["fail_SDK"]}</td>
-                <td>{line["pop_SDK"]}</td>
-                <td>{line["purchase_NATIVE"]}</td>
-                <td>{line["purchase_SDK"]}</td>
-                <td>{line["first_launch"]}</td>
-
-              </tr>
-
-            );
-
-          })
-        }
-      </table> */}
-
+     
     </div>
   );
 }

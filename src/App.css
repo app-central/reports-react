@@ -1,8 +1,9 @@
 .App {
   text-align: center;
   color: black;
+  background-color: rgb(255, 255, 255);
 }
-th{
+/* th{
   border-bottom: 1px solid black;  
   border-right: 1px solid black;
 
@@ -11,4 +12,13 @@ td{
   border-bottom: 1px solid black;  
   border-right: 1px solid black;
 
+} */
+.time{
+  color: rgb(138, 21, 21);
 }
+.form-box{
+  text-align: left;
+  width: 300px;
+  margin: auto;
+}
+  
