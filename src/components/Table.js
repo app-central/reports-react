@@ -6,20 +6,21 @@ export default function Table(props) {
             <div>
 
                 <table class="table">
-                    <tr>
-                        <th></th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <th>{line.app} <span className="time"> {props.getDate(line.day, index)}</span>
-                                    </th>
-                                )
-                            })
-                        }
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            {
+                                props.data.map((line, index) => {
+                                    return (
+                                        <th>{line.app} <span className="time"> {props.getDate(line.day, index)}</span>
+                                        </th>
+                                    )
+                                })
+                            }
 
-                        <th></th>
-                    </tr>
-
+                            <th></th>
+                        </tr>
+                    </thead>
                     <tr>
                         <th>PaymentSheetView_appear_NATIVE</th>
                         {
