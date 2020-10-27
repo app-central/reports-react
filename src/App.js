@@ -32,12 +32,11 @@ function App() {
 
     let lambdaReport = await getDataFromLambda()
 
-    console.log(lambdaReport)
+    // console.log(lambdaReport)
 
     lambdaReport.map((line) => {
       reportsArr = [...reportsArr, line]
     })
-    console.log(reportsArr);
     sortRep(reportsArr);
     daysCheck();
     setData(reportsArr);
@@ -82,7 +81,6 @@ function App() {
         continue;
       }
     }
-    console.log("new dates" + newDates);
     setDates(newDates);
   }
 
@@ -122,9 +120,10 @@ function App() {
   return (
     <div className="App">
       <h1> Reports</h1>
+      
+      <input type="password" onChange={(e) => setPass(e.target.value)}/>
 
       <button onClick={() => { login() }}> show reports</button>
-      <input onChange={(e) => setPass(e.target.value)} >  </input>
 
       <table>
         <tr>
