@@ -6,12 +6,15 @@ import Line from './components/Line';
 
 
 const today = Math.floor(Date.now() / 86400000);
-function App() {
+const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 
+
+function App() {
+  
   const [data, setData] = useState([])
   const [order, setOrder] = useState('htl')
   const [dates, setDates] = useState([])
-
+  console.log(API_KEY);
   async function getData() {
     let reportsArr = [];
 
@@ -31,7 +34,7 @@ function App() {
   }
 
   async function getDataFromLambda() {
-    return fetch('https://pqzj791d65.execute-api.us-east-1.amazonaws.com/default/reports-json')
+    return fetch(API_KEY)
       .then(data => data.json())
   }
   
