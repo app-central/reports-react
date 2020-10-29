@@ -7,8 +7,8 @@ export default function Table(props) {
 
                 <table class="table">
                     <thead class="thead-light">
-                        <tr>
-                            <th></th>
+                        <tr >
+                            <th className="ver-th blank-cell" > </th>
                             {
                                 props.data.map((line, index) => {
                                     return (
@@ -22,7 +22,7 @@ export default function Table(props) {
                         </tr>
                     </thead>
                     <tr>
-                        <th>PaymentSheetView_appear_NATIVE</th>
+                        <th className="ver-th"     >Pop Native</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -32,7 +32,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>app_launch_NATIVE</th>
+                        <th className="ver-th" >App Launch Native</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -42,7 +42,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>app_launch_SDK</th>
+                        <th className="ver-th" >App Launch SDK</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -52,7 +52,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>approve_NATIVE</th>
+                        <th className="ver-th"  >Approve Native</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -62,7 +62,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>approve_SDK</th>
+                        <th className="ver-th" >Approve SDK</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -72,7 +72,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>fail_NATIVE</th>
+                        <th className="ver-th" >Fail Native</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -82,7 +82,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>fail_SDK</th>
+                        <th className="ver-th" >Fail SDK</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -92,7 +92,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>pop_SDK</th>
+                        <th className="ver-th" >Pop SDK</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -102,7 +102,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>purchase_NATIVE</th>
+                        <th className="ver-th" >Purchase Native</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -112,7 +112,7 @@ export default function Table(props) {
                         }
                     </tr>
                     <tr>
-                        <th>purchase_SDK</th>
+                        <th className="ver-th" >Purchase SDK</th>
                         {
                             props.data.map((line, index) => {
                                 return (
@@ -121,8 +121,8 @@ export default function Table(props) {
                             })
                         }
                     </tr>
-                    <tr>
-                        <th>first_launch</th>
+                    <tr className="bot-tr">
+                        <th className="ver-th bot-tr" >First Launch</th>
                         {
                             props.data.map((line, index) => {
                                 return (

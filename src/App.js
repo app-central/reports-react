@@ -27,12 +27,12 @@ function App() {
       alert("wrong passowrd");
     }
   }
-  const logout = () =>{
+  const logout = () => {
     setStart(false)
     setPass("");
   }
 
-  const handleSetPass = (p) =>{
+  const handleSetPass = (p) => {
     setPass(p)
   }
 
@@ -129,17 +129,18 @@ function App() {
 
   return (
     <div className="App">
-      <h1> Reports</h1>
-     <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
-
+      <div className="header">
+        <h1> Reports</h1>
+        <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
+      </div>
       <br />
       <br />
 
-        <Table data={data} getDate={getDate}  start={start} />
-     
+      <Table data={data} getDate={getDate} start={start} />
 
-      
-     
+
+
+
     </div>
   );
 }
