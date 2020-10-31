@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import './App.css';
+import FilterMenu from './components/FilterMenu';
 import Login from './components/Login';
 import Table from './components/Table';
 
@@ -15,8 +16,8 @@ function App() {
   const [start, setStart] = useState(false)
   const [data, setData] = useState([])
   const [order, setOrder] = useState('htl')
-  // const [dates, setDates] = useState([])
   const [pass, setPass] = useState('')
+  const [events, setEvents] = useState([])
 
 
   const login = () => {
@@ -49,7 +50,10 @@ function App() {
     })
     sortRep(reportsArr);
     // daysCheck();
+    console.log(reportsArr);
+
     setData(reportsArr);
+    getEvents(reportsArr);
 
 
   }
@@ -59,6 +63,28 @@ function App() {
       .then(data => data.json())
   }
 
+  const getEvents = (d) => {
+    let eventsNames = [];
+    console.log("-----test----" + d.length);
+    for (let i = 0; i < d.length; i++) {
+
+      for (var event in d[i]) {
+        let isNew = true;
+        for (let j = 0; j < eventsNames.length; j++) {
+          if (event === eventsNames[j] || d[i].event === null) {
+            isNew = false;
+          }
+        }
+        if (isNew) {
+          eventsNames = [...eventsNames, event];
+        }
+      }
+    }
+    eventsNames.sort();
+    console.log(eventsNames);
+    setEvents(eventsNames);
+
+  }
 
   function sortRep(arr) {
     if (order === "lth") {
@@ -79,51 +105,16 @@ function App() {
 
   }
 
-  // const daysCheck = () =>{
-  //   let newDates = [];
-
-  //   let lastDate = 0;
-  //   for (let i = 0; i < data.length; i++) {
-  //     if(data[i].date === lastDate){
-  //       lastDate = data[i].date;
-  //       newDates = [...newDates, i]     
-  //      }else{
-  //       continue;
-  //     }
-  //   }
-  //   setDates(newDates);
-  // }
-
-
-
   const getDate = (day, index) => {
-    // for (let i = 0; i < dates.length; i++) {
-    //   if(dates[i] == index){
-    //     return "";
-    //   }
-    // }
-    //  if(day === dates){
-
-    //     return "";
-    //  }else{
-
-    //  }
-
-
 
     if ((today - day) === 0) {
       return "Today"
-
     }
     else if (today - day === 1) {
-
       return "Yesterday"
-
     }
     else {
-
       return new Date(day * 86400000).toLocaleDateString()
-
     }
   }
 
@@ -132,12 +123,14 @@ function App() {
       <div className="header">
         <h1> Reports</h1>
         <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
+        
       </div>
       <br />
       <br />
 
       <Table data={data} getDate={getDate} start={start} />
 
+      <FilterMenu events={events} />
 
 
 

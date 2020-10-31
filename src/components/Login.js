@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 
 export default function Login(props) {
-    function leftFunction() {
-        document.body.scrollLeft = 0; // For Safari
-        document.documentElement.scrollLeft = 0; // For Chrome, Firefox, IE and Opera
-      }
+   
 
     if (!props.start) {
         return (
@@ -13,7 +10,7 @@ export default function Login(props) {
 
                 <input class="form-control" type="password" onChange={(e) => props.handleSetPass(e.target.value)} />
                 <br />
-                <button class="btn btn-primary mb-2" > show reports</button>
+                <button class="btn btn-primary mb-2 show-rep-btn" > show reports</button>
             </form>
         )
     } else {

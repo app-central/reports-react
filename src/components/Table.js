@@ -3,7 +3,7 @@ import React from 'react'
 export default function Table(props) {
     if (props.start) {
         return (
-            <div>
+            <div className="table-box">
 
                 <table class="table">
                     <thead class="thead-light">
@@ -137,7 +137,7 @@ export default function Table(props) {
         )
     } else {
         return (
-            <div></div>
-        )
+<div>
+ </div>        )
     }
 }
