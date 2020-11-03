@@ -7,7 +7,7 @@ export default function FilterMenu(props) {
     console.log(x);
     const addEvent = (e) => {
         e.preventDefault();
-        if (event === "") {
+        if (event === "" || event === "- - Choose Event - -") {
 
         } else {
             props.addEvent(event);
