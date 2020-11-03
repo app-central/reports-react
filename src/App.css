@@ -46,7 +46,7 @@ body{
 
  
   .blank-cell{
-    height: 150px;
+    height: 180px;
     border-right: 1px solid rgb(221, 221, 221);
   }
   .ver-th{
@@ -94,3 +94,8 @@ body{
   }
   
   /* dropdown */
+
+  .dropdown{
+    /* width: 400px; */
+  }
+  

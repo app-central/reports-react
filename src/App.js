@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import './App.css';
+import DropDown from './components/DropDown';
 import FilterMenu from './components/FilterMenu';
 import Login from './components/Login';
 import Table from './components/Table';
@@ -10,6 +11,8 @@ const today = Math.floor(Date.now() / 86400000);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
 const DEFAULT_EVENTS = ["PaymentSheetView_appear_NATIVE", "app_launch_NATIVE", "app_launch_SDK", "approve_NATIVE", "approve_SDK", "fail_NATIVE", "fail_SDK", "pop_SDK", "purchase_NATIVE", "purchase_SDK", "first_launch"];
+
+
 
 function App() {
 
@@ -42,9 +45,8 @@ function App() {
     let nameMap = {
       PaymentSheetView_appear_NATIVE: "Pop Native",
       app_launch_NATIVE: "App Launch Native",
-      app_launch_SDK: "Approve Native",
+      app_launch_SDK: "App Launch SDK",
       approve_NATIVE: "Approve Native",
-      approve_SDK: "Approve SDK",
       approve_SDK: "Approve SDK",
       fail_NATIVE: "Fail Native",
       fail_SDK: "Fail SDK",
@@ -55,6 +57,33 @@ function App() {
     }
 
     return nameMap[n] || n;
+  }
+
+  const sortAppByValue = (app) =>{
+    let tmp ="";
+    if(true){
+      for (let j = 0; j < displayedEvents.length; j++) {
+        for (let i = 0; i < displayedEvents.length-1; i++) {
+          if(app[displayedEvents[i]] < app[displayedEvents[i+1]] || !app[displayedEvents[i]]){
+            tmp = displayedEvents[i];
+            displayedEvents[i] = displayedEvents[i+1];  
+            displayedEvents[i+1] = tmp; 
+          }
+        }
+      }
+    }else{
+      for (let j = 0; j < displayedEvents.length; j++) {
+        for (let i = 0; i > displayedEvents.length-1; i++) {
+          if(app[displayedEvents[i]] < app[displayedEvents[i+1]] || !app[displayedEvents[i+1]]){
+            tmp = displayedEvents[i];
+            displayedEvents[i] = displayedEvents[i+1];  
+            displayedEvents[i+1] = tmp; 
+          }
+        }
+      }
+    }
+    
+    setDisplayedEvents(displayedEvents);
   }
 
   const login = () => {
@@ -90,6 +119,9 @@ function App() {
     // console.log(reportsArr);
 
     setData(reportsArr);
+
+    console.log(reportsArr);
+
     getEvents(reportsArr);
 
 
@@ -106,9 +138,6 @@ function App() {
     }
     setEventsObject(newArr);
   }
-
-
-
 
   const getEvents = (d) => {
     let eventsNames = [];
@@ -181,13 +210,14 @@ function App() {
       </div>
       <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
 
+      {/* <DropDown events={events} displayedEvents={displayedEvents} events={events} /> */}
 
 
-      <Table loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
+      <Table sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 
 
 
-
+      
     </div>
   );
 }

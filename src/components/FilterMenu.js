@@ -49,9 +49,8 @@ export default function FilterMenu(props) {
                         </div>
                         <button className="btn btn-secondary reset-button" onClick={resetEvents}>Reset</button>
                         <button className="btn btn-danger reset-button" onClick={clear}>Clear All</button>
-{/* 
-                        <DropDown eventsObject={props.eventsObject} displayedEvents={props.displayedEvents} events={props.events} />
-                         */}
+
+                        
                     </div>
 
                     

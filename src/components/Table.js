@@ -1,8 +1,17 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactLoading from 'react-loading';
 
 
 export default function Table(props) {
+
+    const [sortEvents, setSortEvents] = useState(false)
+
+    const handleSort = (line) =>{
+        props.sortAppEvents(line)
+        setSortEvents(!sortEvents);
+
+    }
+
     if (props.loading) {
         return(
             <div className="loading">
@@ -13,14 +22,14 @@ export default function Table(props) {
         return (
             <div className="table-box">
 
-                <table class="table">
-                    <thead class="thead-light">
+                <table className="table">
+                    <thead className="thead-light">
                         <tr >
                             <th className="ver-th blank-cell" > </th>
                             {
                                 props.data.map((line, index) => {
                                     return (
-                                        <th>{line.app} <span className="time"> {props.getDate(line.day, index)}</span>
+                                        <th>{line.app}     <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={()=>{ handleSort(line)  }}>⌄</button>
                                         </th>
                                     )
                                 })
@@ -37,7 +46,7 @@ export default function Table(props) {
                                 {
                                     props.data.map((line, index) => {
                                         return (
-                                            <td>{line.[event]}</td>
+                                            <td>{line[event]}</td>
                                         )
                                     })
                                 }
