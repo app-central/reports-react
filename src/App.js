@@ -9,7 +9,7 @@ import Table from './components/Table';
 const today = Math.floor(Date.now() / 86400000);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
-const DEFAULT_EVENTS = ["PaymentSheetView_appear_NATIVE","app_launch_NATIVE","app_launch_SDK","approve_NATIVE","approve_SDK","fail_NATIVE","fail_SDK","pop_SDK","purchase_NATIVE","purchase_SDK","first_launch" ];
+const DEFAULT_EVENTS = ["PaymentSheetView_appear_NATIVE", "app_launch_NATIVE", "app_launch_SDK", "approve_NATIVE", "approve_SDK", "fail_NATIVE", "fail_SDK", "pop_SDK", "purchase_NATIVE", "purchase_SDK", "first_launch"];
 
 function App() {
 
@@ -18,32 +18,43 @@ function App() {
   const [order, setOrder] = useState('htl')
   const [pass, setPass] = useState('')
   const [events, setEvents] = useState([])
-  const [displayedEvents , setDisplayedEvents] = useState(DEFAULT_EVENTS)
+  const [displayedEvents, setDisplayedEvents] = useState(DEFAULT_EVENTS)
+  const [eventsObject, setEventsObject] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  const resetEvents = () =>{
+  const resetEvents = () => {
     setDisplayedEvents(DEFAULT_EVENTS);
   }
-  const clearEvents = () =>{
+  const clearEvents = () => {
     setDisplayedEvents([]);
   }
 
-  const changeName = (n) =>{
+  const checkIfChecked = (event) => {
+    for (let i = 0; i < displayedEvents.length; i++) {
+      if (event === displayedEvents[i])
+        return true
+    }
+    return false;
+  }
 
-    let nameMap = {PaymentSheetView_appear_NATIVE:"Pop Native",
-                   app_launch_NATIVE:"App Launch Native",
-                   app_launch_SDK:"Approve Native",
-                   approve_NATIVE:"Approve Native",
-                   approve_SDK:"Approve SDK",
-                   approve_SDK:"Approve SDK",
-                   fail_NATIVE:"Fail Native",
-                   fail_SDK:"Fail SDK",
-                   pop_SDK:"Pop SDK",
-                   purchase_NATIVE:"Purchase Native",
-                   purchase_SDK:"Purchase SDK",
-                   first_launch:"Fisrt Launch"
-                  }
+  const changeName = (n) => {
 
-    return nameMap[n] || n;   
+    let nameMap = {
+      PaymentSheetView_appear_NATIVE: "Pop Native",
+      app_launch_NATIVE: "App Launch Native",
+      app_launch_SDK: "Approve Native",
+      approve_NATIVE: "Approve Native",
+      approve_SDK: "Approve SDK",
+      approve_SDK: "Approve SDK",
+      fail_NATIVE: "Fail Native",
+      fail_SDK: "Fail SDK",
+      pop_SDK: "Pop SDK",
+      purchase_NATIVE: "Purchase Native",
+      purchase_SDK: "Purchase SDK",
+      first_launch: "Fisrt Launch"
+    }
+
+    return nameMap[n] || n;
   }
 
   const login = () => {
@@ -66,9 +77,9 @@ function App() {
   async function getData() {
 
     let reportsArr = [];
-
+    setLoading(true);
     let lambdaReport = await getDataFromLambda()
-
+    setLoading(false);
     // console.log(lambdaReport)
 
     lambdaReport.map((line) => {
@@ -82,12 +93,22 @@ function App() {
     getEvents(reportsArr);
 
 
-  }
 
+  }
   async function getDataFromLambda() {
     return fetch(API_KEY)
       .then(data => data.json())
   }
+  const handleObjectEvents = (eventsArr) => {
+    let newArr = []
+    for (let i = 0; i < eventsArr.length; i++) {
+      newArr = [...newArr, { label: eventsArr[i], value: eventsArr[i] }]
+    }
+    setEventsObject(newArr);
+  }
+
+
+
 
   const getEvents = (d) => {
     let eventsNames = [];
@@ -107,7 +128,7 @@ function App() {
     }
     eventsNames.sort();
     setEvents(eventsNames);
-
+    handleObjectEvents(eventsNames)
   }
 
   function sortRep(arr) {
@@ -141,28 +162,28 @@ function App() {
       return new Date(day * 86400000).toLocaleDateString()
     }
   }
-  const addEvent = (event) =>{
-  console.log(event);
-  for (let i = 0; i < displayedEvents.length; i++) {
-    if(displayedEvents[i] === event)
-      return;
-  }
+  const addEvent = (event) => {
+    console.log(event);
+    for (let i = 0; i < displayedEvents.length; i++) {
+      if (displayedEvents[i] === event)
+        return;
+    }
 
-  setDisplayedEvents([...displayedEvents,event ]);
+    setDisplayedEvents([...displayedEvents, event]);
   }
-    return (
+  return (
     <div className="App">
       <div className="header">
         <h1> Reports</h1>
-        <br/> <br/> 
+        <br /> <br />
         <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
-        
+
       </div>
-      <FilterMenu today={today} start={start} clear={clearEvents}  resetEvents={resetEvents} addEvent={addEvent} events={events}  />
+      <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
 
-      
 
-      <Table changeName={changeName} data={data} getDate={getDate} start={start}  events={displayedEvents}/>
+
+      <Table loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 
 
 

@@ -84,3 +84,13 @@ body{
   .date{
     margin-left: 100px;
   }
+
+  .loading{
+    margin: auto;
+    margin-top: 150px;
+
+    /* border: 1px solid black; */
+    width: 80px;
+  }
+  
+  /* dropdown */

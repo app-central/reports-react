@@ -1,7 +1,15 @@
-import React from 'react'
+import React from 'react';
+import ReactLoading from 'react-loading';
+
 
 export default function Table(props) {
-    if (props.start) {
+    if (props.loading) {
+        return(
+            <div className="loading">
+            <ReactLoading type={'spin'} color={"blue"} height={'80px'} width={'80px'} />
+            </div>
+        );
+    }else if (props.start) {
         return (
             <div className="table-box">
 

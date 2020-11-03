@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import DropDown from './DropDown';
 
 var today = new Date();
 export default function FilterMenu(props) {
@@ -49,19 +50,11 @@ export default function FilterMenu(props) {
                         <button className="btn btn-secondary reset-button" onClick={resetEvents}>Reset</button>
                         <button className="btn btn-danger reset-button" onClick={clear}>Clear All</button>
 {/* 
-                        <div id="list1" class="dropdown-check-list" tabindex="100">
-                            <span class="anchor">Select Fruits</span>
-                            <ul class="items">
-                                <li><input type="checkbox" />Apple </li>
-                                <li><input type="checkbox" />Orange</li>
-                                <li><input type="checkbox" />Grapes </li>
-                                <li><input type="checkbox" />Berry </li>
-                                <li><input type="checkbox" />Mango </li>
-                                <li><input type="checkbox" />Banana </li>
-                                <li><input type="checkbox" />Tomato</li>
-                            </ul>
-                        </div> */}
+                        <DropDown eventsObject={props.eventsObject} displayedEvents={props.displayedEvents} events={props.events} />
+                         */}
                     </div>
+
+                    
                     {/* <label for="start">Start date:</label>
 
                     <input className="date" type="date" id="start" name="trip-start"
