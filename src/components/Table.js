@@ -21,7 +21,25 @@ export default function Table(props) {
                             <th></th>
                         </tr>
                     </thead>
-                    <tr>
+                    {props.events.map((event) => {
+                        return (
+                            <tr>
+                                <th className="ver-th"     ><span className="test">{event}</span></th>
+                                {
+                                    props.data.map((line, index) => {
+                                        return (
+                                            <td>{line.[event]}</td>
+                                        )
+                                    })
+                                }
+                            </tr>
+                        );
+                    })
+
+                    }
+
+
+                    {/* <tr>
                         <th className="ver-th"     >Pop Native</th>
                         {
                             props.data.map((line, index) => {
@@ -130,14 +148,14 @@ export default function Table(props) {
                                 )
                             })
                         }
-                    </tr>
+                    </tr> */}
 
                 </table>
             </div>
         )
     } else {
         return (
-<div>
- </div>        )
+            <div>
+            </div>)
     }
 }

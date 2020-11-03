@@ -9,7 +9,7 @@ import Table from './components/Table';
 const today = Math.floor(Date.now() / 86400000);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
-
+const DEFAULT_EVENTS = ["PaymentSheetView_appear_NATIVE","app_launch_NATIVE","app_launch_SDK","approve_NATIVE","approve_SDK","fail_NATIVE","fail_SDK","pop_SDK","purchase_NATIVE","purchase_SDK","first_launch" ];
 
 function App() {
 
@@ -18,7 +18,14 @@ function App() {
   const [order, setOrder] = useState('htl')
   const [pass, setPass] = useState('')
   const [events, setEvents] = useState([])
+  const [displayedEvents , setDisplayedEvents] = useState(DEFAULT_EVENTS)
 
+  const resetEvents = () =>{
+    setDisplayedEvents(DEFAULT_EVENTS);
+  }
+  const clearEvents = () =>{
+    setDisplayedEvents([]);
+  }
 
   const login = () => {
     if (pass === PASS_KEY) {
@@ -117,20 +124,29 @@ function App() {
       return new Date(day * 86400000).toLocaleDateString()
     }
   }
+const addEvent = (event) =>{
+  console.log(event);
+  for (let i = 0; i < displayedEvents.length; i++) {
+    if(displayedEvents[i] === event)
+      return;
+  }
 
+  setDisplayedEvents([...displayedEvents,event ]);
+}
   return (
     <div className="App">
       <div className="header">
         <h1> Reports</h1>
+        <br/> <br/> 
         <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
         
       </div>
-      <br />
-      <br />
+      <FilterMenu today={today} start={start} clear={clearEvents}  resetEvents={resetEvents} addEvent={addEvent} events={events}  />
 
-      <Table data={data} getDate={getDate} start={start} />
+      
 
-      <FilterMenu events={events} />
+      <Table data={data} getDate={getDate} start={start}  events={displayedEvents}/>
+
 
 
 

@@ -16,7 +16,7 @@ export default function Login(props) {
     } else {
         return (
             <div>
-                <button class="btn btn-primary mb-2" onClick={() => { props.logout() }}> Back</button>
+                {/* <button class="btn btn-primary mb-2" onClick={() => { props.logout() }}> Back</button> */}
 
 
             </div>

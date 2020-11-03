@@ -4,6 +4,11 @@
   background-color: rgb(255, 255, 255);
   /* padding-top: 100px; */
 
+
+}
+body{
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .time{
@@ -47,27 +52,35 @@
   .ver-th{
     border-right: 1px solid rgb(221, 221, 221);
     position: absolute;
-    left: 0;
+    left: 5px;
     top: auto;
-
     background-color: white;
-    width: 200px;
+    width: 220px;
     margin: auto;
+    word-wrap: break-word;
+    
   } 
   
   .bot-tr{
     border-bottom: 1px solid rgb(221, 221, 221);
   }
   table{
-    margin-left: 200px;
+    margin-left: 220px;
 
   }
   .table-box {
     overflow-x: scroll;
-    overflow-y: visible;
+    /* overflow-y: visible; */
     padding: 0;
   }
   
   .filter-item{
     margin: 9px;
+  }
+  .reset-button{
+    margin-left: 20px;
+    margin-right: 30px;
+  }
+  .date{
+    margin-left: 100px;
   }
