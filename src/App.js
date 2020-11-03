@@ -27,6 +27,25 @@ function App() {
     setDisplayedEvents([]);
   }
 
+  const changeName = (n) =>{
+
+    let nameMap = {PaymentSheetView_appear_NATIVE:"Pop Native",
+                   app_launch_NATIVE:"App Launch Native",
+                   app_launch_SDK:"Approve Native",
+                   approve_NATIVE:"Approve Native",
+                   approve_SDK:"Approve SDK",
+                   approve_SDK:"Approve SDK",
+                   fail_NATIVE:"Fail Native",
+                   fail_SDK:"Fail SDK",
+                   pop_SDK:"Pop SDK",
+                   purchase_NATIVE:"Purchase Native",
+                   purchase_SDK:"Purchase SDK",
+                   first_launch:"Fisrt Launch"
+                  }
+
+    return nameMap[n] || n;   
+  }
+
   const login = () => {
     if (pass === PASS_KEY) {
       getData();
@@ -57,7 +76,7 @@ function App() {
     })
     sortRep(reportsArr);
     // daysCheck();
-    console.log(reportsArr);
+    // console.log(reportsArr);
 
     setData(reportsArr);
     getEvents(reportsArr);
@@ -72,7 +91,6 @@ function App() {
 
   const getEvents = (d) => {
     let eventsNames = [];
-    console.log("-----test----" + d.length);
     for (let i = 0; i < d.length; i++) {
 
       for (var event in d[i]) {
@@ -88,7 +106,6 @@ function App() {
       }
     }
     eventsNames.sort();
-    console.log(eventsNames);
     setEvents(eventsNames);
 
   }
@@ -124,7 +141,7 @@ function App() {
       return new Date(day * 86400000).toLocaleDateString()
     }
   }
-const addEvent = (event) =>{
+  const addEvent = (event) =>{
   console.log(event);
   for (let i = 0; i < displayedEvents.length; i++) {
     if(displayedEvents[i] === event)
@@ -132,8 +149,8 @@ const addEvent = (event) =>{
   }
 
   setDisplayedEvents([...displayedEvents,event ]);
-}
-  return (
+  }
+    return (
     <div className="App">
       <div className="header">
         <h1> Reports</h1>
@@ -145,7 +162,7 @@ const addEvent = (event) =>{
 
       
 
-      <Table data={data} getDate={getDate} start={start}  events={displayedEvents}/>
+      <Table changeName={changeName} data={data} getDate={getDate} start={start}  events={displayedEvents}/>
 
 
 

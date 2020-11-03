@@ -24,7 +24,8 @@ export default function Table(props) {
                     {props.events.map((event) => {
                         return (
                             <tr>
-                                <th className="ver-th"     ><span className="test">{event}</span></th>
+                            
+                                <th className="ver-th"     ><span className="test">{props.changeName(event)}</span></th> 
                                 {
                                     props.data.map((line, index) => {
                                         return (
