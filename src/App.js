@@ -5,6 +5,7 @@ import DropDown from './components/DropDown';
 import FilterMenu from './components/FilterMenu';
 import Login from './components/Login';
 import Table from './components/Table';
+import TableControls from './components/TableControls';
 
 
 const today = Math.floor(Date.now() / 86400000);
@@ -40,6 +41,21 @@ function App() {
     return false;
   }
 
+  const sortByName = () => {
+    // displayedEvents.sort();
+
+    displayedEvents.sort(
+      function (a, b) {
+        if (a.toLowerCase() < b.toLowerCase()) return -1;
+        if (a.toLowerCase() > b.toLowerCase()) return 1;
+        return 0;
+      }
+    );
+    setDisplayedEvents(displayedEvents);
+    console.log(displayedEvents);
+
+
+  }
   const changeName = (n) => {
 
     let nameMap = {
@@ -56,33 +72,38 @@ function App() {
       first_launch: "Fisrt Launch"
     }
 
+    if(!nameMap[n]){
+      return n;
+    }else{
+      return nameMap[n] + " (" + n + ")" ;
+    }
     return nameMap[n] || n;
   }
 
-  const sortAppByValue = (app) =>{
-    let tmp ="";
-    if(true){
+  const sortAppByValue = (app) => {
+    let tmp = "";
+    if (true) {
       for (let j = 0; j < displayedEvents.length; j++) {
-        for (let i = 0; i < displayedEvents.length-1; i++) {
-          if(app[displayedEvents[i]] < app[displayedEvents[i+1]] || !app[displayedEvents[i]]){
+        for (let i = 0; i < displayedEvents.length - 1; i++) {
+          if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i]]) {
             tmp = displayedEvents[i];
-            displayedEvents[i] = displayedEvents[i+1];  
-            displayedEvents[i+1] = tmp; 
+            displayedEvents[i] = displayedEvents[i + 1];
+            displayedEvents[i + 1] = tmp;
           }
         }
       }
-    }else{
+    } else {
       for (let j = 0; j < displayedEvents.length; j++) {
-        for (let i = 0; i > displayedEvents.length-1; i++) {
-          if(app[displayedEvents[i]] < app[displayedEvents[i+1]] || !app[displayedEvents[i+1]]){
+        for (let i = 0; i > displayedEvents.length - 1; i++) {
+          if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i + 1]]) {
             tmp = displayedEvents[i];
-            displayedEvents[i] = displayedEvents[i+1];  
-            displayedEvents[i+1] = tmp; 
+            displayedEvents[i] = displayedEvents[i + 1];
+            displayedEvents[i + 1] = tmp;
           }
         }
       }
     }
-    
+
     setDisplayedEvents(displayedEvents);
   }
 
@@ -95,7 +116,8 @@ function App() {
     }
   }
   const logout = () => {
-    setStart(false)
+    setStart(false);
+    setLoading(false);
     setPass("");
   }
 
@@ -159,7 +181,6 @@ function App() {
     setEvents(eventsNames);
     handleObjectEvents(eventsNames)
   }
-
   function sortRep(arr) {
     if (order === "lth") {
       arr.sort((day1, day2) => {
@@ -178,7 +199,6 @@ function App() {
     }
 
   }
-
   const getDate = (day, index) => {
 
     if ((today - day) === 0) {
@@ -200,24 +220,47 @@ function App() {
 
     setDisplayedEvents([...displayedEvents, event]);
   }
+  const removeEvent = (event) => {
+    let newArr = []
+    for (let i = 0; i < displayedEvents.length; i++) {
+      if (displayedEvents[i] === event)
+        continue;
+      else
+        newArr = [...newArr, displayedEvents[i]];
+    }
+    setDisplayedEvents(newArr);
+  }
+  const addAll = () => {
+    let newArr = [];
+    for (let i = 0; i < events.length; i++) {
+      if(events[i] === "app" || events[i] === "day"){
+        continue;
+      }else{
+        newArr = [...newArr, events[i]];
+      }
+    }
+    setDisplayedEvents(newArr);
+  }
   return (
     <div className="App">
       <div className="header">
-        <h1> Reports</h1>
+        <h1 onClick={() => { logout() }}> Reports</h1>
         <br /> <br />
         <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
 
       </div>
-      <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
+      {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
+       */}
+      <TableControls resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
 
-      {/* <DropDown events={events} displayedEvents={displayedEvents} events={events} /> */}
-
-
-      <Table sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
-
+      <Table sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 
 
-      
+
+      <br />
+      <br />
+
+
     </div>
   );
 }

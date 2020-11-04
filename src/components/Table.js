@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import ReactLoading from 'react-loading';
 
 
@@ -6,30 +6,35 @@ export default function Table(props) {
 
     const [sortEvents, setSortEvents] = useState(false)
 
-    const handleSort = (line) =>{
+    const handleSort = (line) => {
         props.sortAppEvents(line)
         setSortEvents(!sortEvents);
-
     }
 
+    const handleSortByName = () =>{
+        props.sortByName(); 
+        setSortEvents(!sortEvents);
+    }
+    
+
     if (props.loading) {
-        return(
+        return (
             <div className="loading">
-            <ReactLoading type={'spin'} color={"blue"} height={'80px'} width={'80px'} />
+                <ReactLoading type={'spin'} color={"blue"} height={'80px'} width={'80px'} />
             </div>
         );
-    }else if (props.start) {
+    } else if (props.start) {
         return (
             <div className="table-box">
 
                 <table className="table">
                     <thead className="thead-light">
                         <tr >
-                            <th className="ver-th blank-cell" > </th>
+                            <th className="ver-th blank-cell" > <button className="btn" onClick={() => { handleSortByName()}}>⌄</button> </th>
                             {
                                 props.data.map((line, index) => {
                                     return (
-                                        <th>{line.app}     <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={()=>{ handleSort(line)  }}>⌄</button>
+                                        <th>{line.app}     <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
                                         </th>
                                     )
                                 })
@@ -41,8 +46,8 @@ export default function Table(props) {
                     {props.events.map((event) => {
                         return (
                             <tr>
-                            
-                                <th className="ver-th"     ><span className="test">{props.changeName(event)}</span></th> 
+
+                                <th className="ver-th"     ><span className="test">{props.changeName(event)}</span></th>
                                 {
                                     props.data.map((line, index) => {
                                         return (
@@ -56,119 +61,8 @@ export default function Table(props) {
 
                     }
 
-
-                    {/* <tr>
-                        <th className="ver-th"     >Pop Native</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.PaymentSheetView_appear_NATIVE}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >App Launch Native</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.app_launch_NATIVE}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >App Launch SDK</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.app_launch_SDK}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th"  >Approve Native</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.approve_NATIVE}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >Approve SDK</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.approve_SDK}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >Fail Native</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.fail_NATIVE}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >Fail SDK</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.fail_SDK}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >Pop SDK</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.pop_SDK}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >Purchase Native</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.purchase_NATIVE}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr>
-                        <th className="ver-th" >Purchase SDK</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.purchase_SDK}</td>
-                                )
-                            })
-                        }
-                    </tr>
-                    <tr className="bot-tr">
-                        <th className="ver-th bot-tr" >First Launch</th>
-                        {
-                            props.data.map((line, index) => {
-                                return (
-                                    <td>{line.first_launch}</td>
-                                )
-                            })
-                        }
-                    </tr> */}
-
                 </table>
+
             </div>
         )
     } else {

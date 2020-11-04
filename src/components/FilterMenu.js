@@ -47,8 +47,7 @@ export default function FilterMenu(props) {
                             <button class="input-group-text btn btn-secondary" for="eventselect" onClick={addEvent}>Add Event</button>
 
                         </div>
-                        <button className="btn btn-secondary reset-button" onClick={resetEvents}>Reset</button>
-                        <button className="btn btn-danger reset-button" onClick={clear}>Clear All</button>
+                            
 
                         
                     </div>
