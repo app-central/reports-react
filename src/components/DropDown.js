@@ -1,10 +1,8 @@
 import React from 'react';
 import { Multiselect } from 'multiselect-react-dropdown';
-import { render } from "react-dom";
 
 import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
 import DropdownTreeSelect from 'react-dropdown-tree-select'
-import Loading from 'react-loading';
 
 
 

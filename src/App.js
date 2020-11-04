@@ -25,12 +25,100 @@ function App() {
   const [displayedEvents, setDisplayedEvents] = useState(DEFAULT_EVENTS)
   const [eventsObject, setEventsObject] = useState([])
   const [loading, setLoading] = useState(false)
+  const [apps, setApps] = useState([])
+  const [displayedApps, setDisplayedApps] = useState([])
+  const [displayedData, setdisplayedData] = useState([])
+  const [ogData, setOgData] = useState([])
 
   const resetEvents = () => {
     setDisplayedEvents(DEFAULT_EVENTS);
   }
   const clearEvents = () => {
     setDisplayedEvents([]);
+  }
+
+  const getApps = (d) => {
+    let newApps = [];
+    let exists = false;
+    for (let i = 0; i < d.length; i++) {
+      for (let j = 0; j < newApps.length; j++) {
+        if (d[i].app === newApps[j]) {
+          exists = true;
+          break;
+        }
+
+      }
+      if (!exists)
+        newApps = [...newApps, d[i].app];
+      exists = false;
+    }
+    console.log(newApps);
+    setApps(newApps);
+    setDisplayedApps(newApps);
+    updateDispalyedData(d);
+
+  }
+  const resetApps = () => {
+    setData(ogData);
+    getApps(ogData);
+  }
+  const updateDispalyedData = () => {
+
+    let newDispData = []
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < displayedApps.length; j++) {
+        if (data[i].app === displayedApps[j]) {
+          newDispData = [...newDispData, data[i]]
+        }
+      }
+    }
+    setdisplayedData(newDispData);
+    console.log(displayedData);
+  }
+  const removeApp = (app) => {
+    let newDispApps = [];
+    for (let i = 0; i < displayedApps.length; i++) {
+      if (displayedApps[i] === app) {
+        continue;
+      } else {
+        newDispApps = [...newDispApps, displayedApps[i]];
+      }
+    }
+    setDisplayedApps(newDispApps);
+    let newData = []
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].app === app)
+        continue;
+      else
+        newData = [...newData, data[i]];
+    }
+    setData(newData);
+  }
+  const clearApps = () => {
+
+    setData([]);
+    setDisplayedApps([]);
+  }
+  const addApp = (app) => {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].app === app)
+        return
+    }
+    let newData = []
+    for (let i = 0; i < data.length; i++) {
+      newData = [...newData, data[i]]
+      
+    }
+    for (let i = 0; i < ogData.length; i++) {
+      if(ogData[i].app === app){
+        newData = [...newData, ogData[i]];
+      }
+    }
+    sortRep(newData);
+
+    setData(newData)
+
+    setDisplayedApps([...displayedApps, app]);
   }
 
   const checkIfChecked = (event) => {
@@ -72,10 +160,10 @@ function App() {
       first_launch: "Fisrt Launch"
     }
 
-    if(!nameMap[n]){
+    if (!nameMap[n]) {
       return n;
-    }else{
-      return nameMap[n] + " (" + n + ")" ;
+    } else {
+      return nameMap[n] + " (" + n + ")";
     }
     return nameMap[n] || n;
   }
@@ -115,6 +203,7 @@ function App() {
       alert("wrong passowrd");
     }
   }
+
   const logout = () => {
     setStart(false);
     setLoading(false);
@@ -141,9 +230,8 @@ function App() {
     // console.log(reportsArr);
 
     setData(reportsArr);
-
-    console.log(reportsArr);
-
+    setOgData(reportsArr);
+    getApps(reportsArr);
     getEvents(reportsArr);
 
 
@@ -160,7 +248,6 @@ function App() {
     }
     setEventsObject(newArr);
   }
-
   const getEvents = (d) => {
     let eventsNames = [];
     for (let i = 0; i < d.length; i++) {
@@ -233,9 +320,9 @@ function App() {
   const addAll = () => {
     let newArr = [];
     for (let i = 0; i < events.length; i++) {
-      if(events[i] === "app" || events[i] === "day"){
+      if (events[i] === "app" || events[i] === "day") {
         continue;
-      }else{
+      } else {
         newArr = [...newArr, events[i]];
       }
     }
@@ -251,7 +338,8 @@ function App() {
       </div>
       {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
        */}
-      <TableControls resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+      <TableControls head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+      <TableControls head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
 
       <Table sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 

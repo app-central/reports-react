@@ -34,7 +34,7 @@ export default function Table(props) {
                             {
                                 props.data.map((line, index) => {
                                     return (
-                                        <th>{line.app}     <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
+                                        <th>{line.app}    <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
                                         </th>
                                     )
                                 })
@@ -51,7 +51,7 @@ export default function Table(props) {
                                 {
                                     props.data.map((line, index) => {
                                         return (
-                                            <td>{line[event]}</td>
+                                            <td>{line[event] || "n/a"}</td>
                                         )
                                     })
                                 }

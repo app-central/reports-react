@@ -4,7 +4,9 @@ import DropDown from './DropDown'
 export default function TableControls(props) {
     if (props.start && !props.loading ) {
         return (
+            
             <div className="table-controls">
+            <h3>{props.head}</h3>
                 <button className="btn btn-secondary reset-button" onClick={props.resetEvents}>Reset</button>
                 <button className="btn btn-danger reset-button" onClick={props.clearEvents}>Clear All</button>
                 <button className="btn btn-primary reset-button" onClick={props.addAll}>Add All</button>
