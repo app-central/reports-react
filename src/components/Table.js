@@ -23,7 +23,12 @@ export default function Table(props) {
                 <ReactLoading type={'spin'} color={"blue"} height={'80px'} width={'80px'} />
             </div>
         );
-    } else if (props.start) {
+    } else if(props.data.length === 0){
+        return(
+            <div>
+            </div>
+        )
+    }else if (props.start) {
         return (
             <div className="table-box">
 

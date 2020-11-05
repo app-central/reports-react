@@ -1,17 +1,36 @@
 import React, { useState } from 'react';
 
 import './App.css';
-import DropDown from './components/DropDown';
 import FilterMenu from './components/FilterMenu';
 import Login from './components/Login';
 import Table from './components/Table';
 import TableControls from './components/TableControls';
 
-
+var today2 = new Date();
+// console.log(tday);
 const today = Math.floor(Date.now() / 86400000);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
-const DEFAULT_EVENTS = ["PaymentSheetView_appear_NATIVE", "app_launch_NATIVE", "app_launch_SDK", "approve_NATIVE", "approve_SDK", "fail_NATIVE", "fail_SDK", "pop_SDK", "purchase_NATIVE", "purchase_SDK", "first_launch"];
+const DEFAULT_EVENTS = ["first_launch",
+  "app_launch_NATIVE",
+  "app_launch_SDK",
+  "thumbnail_tap_NATIVE",
+  "thumbnail_tap_SDK",
+  "PaymentSheetView_appear_NATIVE",
+  "pop/app_launch_NATIVE",
+  "pop_SDK",
+  "pop/app_launch_SDK",
+  "approve_NATIVE",
+  "approve/PaymentSheetView_appear_NATIVE",
+  "approve_SDK",
+  "approve/pop_SDK",
+  "purchase_NATIVE",
+  "purchase/approve_NATIVE",
+  "purchase_SDK",
+  "purchase/approve_SDK",
+  "fail_NATIVE",
+  "fail_SDK",
+];
 
 
 
@@ -30,13 +49,41 @@ function App() {
   const [displayedData, setdisplayedData] = useState([])
   const [ogData, setOgData] = useState([])
 
+
+  const generateNewEvents = (d) => {
+    for (let i = 0; i < d.length; i++) {
+      d[i]["pop/app_launch_NATIVE"] = (Math.floor((d[i].pop / d[i].app_launch_NATIVE) * 100)) + "%";
+      d[i]["pop/app_launch_SDK"] = (Math.floor((d[i].pop / d[i].app_launch_SDK) * 100)) + "%";
+      d[i]["approve/PaymentSheetView_appear_NATIVE"] = (Math.floor((d[i].approve / d[i].PaymentSheetView_appear_NATIVE) * 100)) + "%";
+      d[i]["approve/pop_SDK"] = (Math.floor((d[i].approve / d[i].pop_SDK) * 100)) + "%";
+      d[i]["purchase/approve_NATIVE"] = (Math.floor((d[i].purchase / d[i].approve_NATIVE) * 100)) + "%";
+      d[i]["purchase/approve_SDK"] = Math.floor((d[i].purchase / d[i].approve_SDK) * 100) + "%";
+
+    }
+    setData(d);
+  }
+
+  const getToday = () => {
+
+    let day = today2.getDate().toString();
+    if (day.length === 1) {
+      day = "0" + day;
+    }
+    let month = (today2.getMonth() + 1).toString();
+
+    if (month.length === 1) {
+      month = "0" + month;
+    }
+
+    return today2.getFullYear() + "-" + (month) + "-" + day;
+  }
+
   const resetEvents = () => {
     setDisplayedEvents(DEFAULT_EVENTS);
   }
   const clearEvents = () => {
     setDisplayedEvents([]);
   }
-
   const getApps = (d) => {
     let newApps = [];
     let exists = false;
@@ -52,7 +99,6 @@ function App() {
         newApps = [...newApps, d[i].app];
       exists = false;
     }
-    console.log(newApps);
     setApps(newApps);
     setDisplayedApps(newApps);
     updateDispalyedData(d);
@@ -73,7 +119,6 @@ function App() {
       }
     }
     setdisplayedData(newDispData);
-    console.log(displayedData);
   }
   const removeApp = (app) => {
     let newDispApps = [];
@@ -107,10 +152,10 @@ function App() {
     let newData = []
     for (let i = 0; i < data.length; i++) {
       newData = [...newData, data[i]]
-      
+
     }
     for (let i = 0; i < ogData.length; i++) {
-      if(ogData[i].app === app){
+      if (ogData[i].app === app) {
         newData = [...newData, ogData[i]];
       }
     }
@@ -157,7 +202,16 @@ function App() {
       pop_SDK: "Pop SDK",
       purchase_NATIVE: "Purchase Native",
       purchase_SDK: "Purchase SDK",
-      first_launch: "Fisrt Launch"
+      first_launch: "Fisrt Launch",
+      ["pop/app_launch_NATIVE"]: "Pop / App Launch Native",
+      ["pop/app_launch_SDK"]: "Pop / app Launch SDK",
+      ["approve/PaymentSheetView_appear_NATIVE"]: "Approve / Pop Native",
+      ["approve/pop_SDK"]: "Approve / Pop SDK",
+      ["purchase/approve_NATIVE"]: "Purchase / Approve Native",
+      ["purchase/approve_SDK"]: "Purchase / Approve SDK"
+
+
+
     }
 
     if (!nameMap[n]) {
@@ -232,8 +286,9 @@ function App() {
     setData(reportsArr);
     setOgData(reportsArr);
     getApps(reportsArr);
-    getEvents(reportsArr);
+    generateNewEvents(reportsArr);
 
+    getEvents(reportsArr);
 
 
   }
@@ -330,6 +385,7 @@ function App() {
   }
   return (
     <div className="App">
+
       <div className="header">
         <h1 onClick={() => { logout() }}> Reports</h1>
         <br /> <br />
@@ -338,8 +394,25 @@ function App() {
       </div>
       {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
        */}
-      <TableControls head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
-      <TableControls head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
+      {/* <label for="start">From:</label>
+
+      <input className="date" type="date" id="start" name="trip-start"
+        min="2020-09-26" max={getToday()} />
+      <label for="start">To:</label>
+
+      <input className="date" type="date" id="start" name="trip-start"
+        min="2020-09-26" max={getToday()} /> */}
+
+      <div className="row">
+        <div className="col-6">
+          <TableControls head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+
+        </div>
+        <div className="col-6">
+          <TableControls head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
+
+        </div>
+      </div>
 
       <Table sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 
@@ -347,7 +420,6 @@ function App() {
 
       <br />
       <br />
-
 
     </div>
   );

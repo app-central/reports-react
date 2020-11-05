@@ -82,7 +82,8 @@ body{
 
   }
   .date{
-    margin-left: 100px;
+    margin-left: 50px;
+    margin-right: 50px;
   }
 
   .loading{
@@ -106,3 +107,7 @@ body{
     margin: 15px;
   }
   
+  .row{
+    /* border: 1px solid black; */
+    margin: 10px;
+  }
