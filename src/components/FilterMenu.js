@@ -5,7 +5,6 @@ var today = new Date();
 export default function FilterMenu(props) {
     const [event, setEvent] = useState("")
     let x = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-    // console.log(x);
     const addEvent = (e) => {
         e.preventDefault();
         if (event === "" || event === "- - Choose Event - -") {

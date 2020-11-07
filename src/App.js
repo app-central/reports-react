@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { createPopper } from '@popperjs/core';
+
+import Button from '@material-ui/core/Button';
 
 import './App.css';
 import FilterMenu from './components/FilterMenu';
@@ -6,9 +9,17 @@ import Login from './components/Login';
 import Table from './components/Table';
 import TableControls from './components/TableControls';
 
+
+const button = document.querySelector('#button');
+const tooltip = document.querySelector('#tooltip');
+
+var date = new Date('2012.08.10').getTime() / 86400000;
+console.log(date);
+
 var today2 = new Date();
 // console.log(tday);
 const today = Math.floor(Date.now() / 86400000);
+console.log(today);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
 const DEFAULT_EVENTS = ["first_launch",
@@ -48,6 +59,8 @@ function App() {
   const [displayedApps, setDisplayedApps] = useState([])
   const [displayedData, setdisplayedData] = useState([])
   const [ogData, setOgData] = useState([])
+  const [tFrom, settFrom] = useState(0)
+  const [tTo, settTo] = useState(today)
 
 
   const generateNewEvents = (d) => {
@@ -61,6 +74,19 @@ function App() {
 
     }
     setData(d);
+  }
+
+  const resetTimes = () => {
+    settFrom(0);
+    settTo(today)
+  }
+  const handleFrom = (t) => {
+    settFrom(t);
+    console.log("from: " + t)
+  }
+  const handleTo = (t) => {
+    settTo(t)
+    console.log("to: " + t)
   }
 
   const getToday = () => {
@@ -217,7 +243,8 @@ function App() {
     if (!nameMap[n]) {
       return n;
     } else {
-      return nameMap[n] + " (" + n + ")";
+      // return nameMap[n] + " (" + n + ")";
+      return nameMap[n];
     }
     return nameMap[n] || n;
   }
@@ -227,7 +254,8 @@ function App() {
     if (true) {
       for (let j = 0; j < displayedEvents.length; j++) {
         for (let i = 0; i < displayedEvents.length - 1; i++) {
-          if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i]]) {
+          
+          if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i]] || isNaN(app[displayedEvents[i]])) {
             tmp = displayedEvents[i];
             displayedEvents[i] = displayedEvents[i + 1];
             displayedEvents[i + 1] = tmp;
@@ -394,14 +422,8 @@ function App() {
       </div>
       {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
        */}
-      {/* <label for="start">From:</label>
-
-      <input className="date" type="date" id="start" name="trip-start"
-        min="2020-09-26" max={getToday()} />
-      <label for="start">To:</label>
-
-      <input className="date" type="date" id="start" name="trip-start"
-        min="2020-09-26" max={getToday()} /> */}
+{/* 
+      <TimeSelection loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} /> */}
 
       <div className="row">
         <div className="col-6">
@@ -414,12 +436,18 @@ function App() {
         </div>
       </div>
 
-      <Table sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
+      <Table tFrom={tFrom} tTo={tTo} sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 
 
 
       <br />
       <br />
+      <div>
+    
+       {
+       }
+
+      </div>
 
     </div>
   );
