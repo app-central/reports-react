@@ -5,9 +5,10 @@ import Button from '@material-ui/core/Button';
 
 import './App.css';
 import FilterMenu from './components/FilterMenu';
-import Login from './components/Login';
+import Login from './components/Login';   
 import Table from './components/Table';
 import TableControls from './components/TableControls';
+import TimeSelection from './components/TimeSelection';
 
 
 const button = document.querySelector('#button');
@@ -22,25 +23,36 @@ const today = Math.floor(Date.now() / 86400000);
 console.log(today);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
-const DEFAULT_EVENTS = ["first_launch",
+const DEFAULT_NEXT = ["first_launch",
   "app_launch_NATIVE",
   "app_launch_SDK",
   "thumbnail_tap_NATIVE",
   "thumbnail_tap_SDK",
   "PaymentSheetView_appear_NATIVE",
-  "pop/app_launch_NATIVE",
+  "PaymentSheetView_appear_NATIVE/app_launch_NATIVE",
   "pop_SDK",
-  "pop/app_launch_SDK",
+  "pop_SDK/app_launch_SDK",
   "approve_NATIVE",
-  "approve/PaymentSheetView_appear_NATIVE",
+  "approve_NATIVE/PaymentSheetView_appear_NATIVE",
   "approve_SDK",
-  "approve/pop_SDK",
+  "approve_SDK/pop_SDK",
   "purchase_NATIVE",
-  "purchase/approve_NATIVE",
+  "purchase_NATIVE/approve_NATIVE",
   "purchase_SDK",
-  "purchase/approve_SDK",
+  "purchase_SDK/approve_SDK",
   "fail_NATIVE",
   "fail_SDK",
+];
+const DEFAULT_EVENTS = [
+  "setup",
+  "pop",
+  "approve",
+  "purchase",
+  "fail",
+  "restore",
+  "restored",
+  "paywall_loaded",
+  "dismiss",  
 ];
 
 
@@ -65,12 +77,12 @@ function App() {
 
   const generateNewEvents = (d) => {
     for (let i = 0; i < d.length; i++) {
-      d[i]["pop/app_launch_NATIVE"] = (Math.floor((d[i].pop / d[i].app_launch_NATIVE) * 100)) + "%";
-      d[i]["pop/app_launch_SDK"] = (Math.floor((d[i].pop / d[i].app_launch_SDK) * 100)) + "%";
-      d[i]["approve/PaymentSheetView_appear_NATIVE"] = (Math.floor((d[i].approve / d[i].PaymentSheetView_appear_NATIVE) * 100)) + "%";
-      d[i]["approve/pop_SDK"] = (Math.floor((d[i].approve / d[i].pop_SDK) * 100)) + "%";
-      d[i]["purchase/approve_NATIVE"] = (Math.floor((d[i].purchase / d[i].approve_NATIVE) * 100)) + "%";
-      d[i]["purchase/approve_SDK"] = Math.floor((d[i].purchase / d[i].approve_SDK) * 100) + "%";
+      d[i]["PaymentSheetView_appear_NATIVE/app_launch_NATIVE"] = (Math.floor((d[i].PaymentSheetView_appear_NATIVE / d[i].app_launch_NATIVE) * 100)) + "%";
+      d[i]["pop_SDK/app_launch_SDK"] = (Math.floor((d[i].pop_SDK / d[i].app_launch_SDK) * 100)) + "%";
+      d[i]["approve_NATIVE/PaymentSheetView_appear_NATIVE"] = (Math.floor((d[i].approve / d[i].PaymentSheetView_appear_NATIVE) * 100)) + "%";
+      d[i]["approve_SDK/pop_SDK"] = (Math.floor((d[i].approve / d[i].pop_SDK) * 100)) + "%";
+      d[i]["purchase_NATIVE/approve_NATIVE"] = (Math.floor((d[i].purchase / d[i].approve_NATIVE) * 100)) + "%";
+      d[i]["purchase_SDK/approve_SDK"] = Math.floor((d[i].purchase / d[i].approve_SDK) * 100) + "%";
 
     }
     setData(d);
@@ -229,12 +241,12 @@ function App() {
       purchase_NATIVE: "Purchase Native",
       purchase_SDK: "Purchase SDK",
       first_launch: "Fisrt Launch",
-      ["pop/app_launch_NATIVE"]: "Pop / App Launch Native",
-      ["pop/app_launch_SDK"]: "Pop / app Launch SDK",
-      ["approve/PaymentSheetView_appear_NATIVE"]: "Approve / Pop Native",
-      ["approve/pop_SDK"]: "Approve / Pop SDK",
-      ["purchase/approve_NATIVE"]: "Purchase / Approve Native",
-      ["purchase/approve_SDK"]: "Purchase / Approve SDK"
+      ["PaymentSheetView_appear_NATIVE/app_launch_NATIVE"]: "Pop Native / App Launch Native Rate",
+      ["pop_SDK/app_launch_SDK"]: "Pop SDK/ app Launch SDK Rate",
+      ["approve_NATIVE/PaymentSheetView_appear_NATIVE"]: "Approve Native/ Pop Native Rate",
+      ["approve_SDK/pop_SDK"]: "Approve SDK / Pop SDK Rate",
+      ["purchase_NATIVE/approve_NATIVE"]: "Purchase Native/ Approve Native Rate",
+      ["purchase_SDK/approve_SDK"]: "Purchase SDK/ Approve SDK Rate"
 
 
 
@@ -247,6 +259,15 @@ function App() {
       return nameMap[n];
     }
     return nameMap[n] || n;
+  }
+  const setNextMoviesEvetns = () =>{
+    setDisplayedEvents(DEFAULT_NEXT);
+  }
+  const setNextMoviesApp = () =>{
+    // setDisplayedApps(["oded.Movies"])
+     setData([]);
+    setDisplayedApps([]);
+    addApp("oded.Movies");
   }
 
   const sortAppByValue = (app) => {
@@ -420,18 +441,18 @@ function App() {
         <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
 
       </div>
-      {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} />
-       */}
-{/* 
-      <TimeSelection loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} /> */}
+      {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} /> */}
+      
+      
+      <TimeSelection loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} /> 
 
       <div className="row">
         <div className="col-6">
-          <TableControls head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+          <TableControls setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
 
         </div>
         <div className="col-6">
-          <TableControls head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
+          <TableControls setNextMoviesEvetns={setNextMoviesApp} head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
 
         </div>
       </div>

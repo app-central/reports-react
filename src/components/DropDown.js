@@ -20,6 +20,8 @@ export default function DropDown(props) {
     return (
         <div className="dropdown">
             <Multiselect className="drop-down"
+                hidePlaceholder={true}
+                closeIcon={'cancel'}
                 options={props.events} // Options to display in the dropdown
                 selectedValues={props.displayedEvents} // Preselected value to persist in dropdown
                 onSelect={addEvent} // Function will trigger on select event
