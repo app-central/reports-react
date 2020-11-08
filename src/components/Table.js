@@ -36,11 +36,9 @@ export default function Table(props) {
         for (let i = 0; i < highlight.length; i++) {
 
             if(highlight[i] === index){
-                console.log("ture")
                 return true
             }
         }
-        console.log("false");
         return false;
     }
     const highlightRemove = (index) =>{
@@ -66,7 +64,6 @@ export default function Table(props) {
         props.sortAppEvents(line)
         setSortEvents(!sortEvents);
     }
-
     const handleSortByName = () => {
         props.sortByName();
         setSortEvents(!sortEvents);

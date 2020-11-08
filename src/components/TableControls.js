@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
 }));
+
 export default function TableControls(props) {
     const classes = useStyles();
 

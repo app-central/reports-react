@@ -14,8 +14,6 @@ import TimeSelection from './components/TimeSelection';
 const button = document.querySelector('#button');
 const tooltip = document.querySelector('#tooltip');
 
-var date = new Date('2012.08.10').getTime() / 86400000;
-console.log(date);
 
 var today2 = new Date();
 // console.log(tday);
@@ -75,30 +73,36 @@ function App() {
   const [tFrom, settFrom] = useState(0)
   const [tTo, settTo] = useState(today)
 
-
-  const generateNewEvents = (d) => {
-    for (let i = 0; i < d.length; i++) {
-      d[i]["PaymentSheetView_appear_NATIVE/app_launch_NATIVE"] = (Math.floor((d[i].PaymentSheetView_appear_NATIVE / d[i].app_launch_NATIVE) * 100)) + "%";
-      d[i]["pop_SDK/app_launch_SDK"] = (Math.floor((d[i].pop_SDK / d[i].app_launch_SDK) * 100)) + "%";
-      d[i]["approve_NATIVE/PaymentSheetView_appear_NATIVE"] = (Math.floor((d[i].approve / d[i].PaymentSheetView_appear_NATIVE) * 100)) + "%";
-      d[i]["approve_SDK/pop_SDK"] = (Math.floor((d[i].approve / d[i].pop_SDK) * 100)) + "%";
-      d[i]["purchase_NATIVE/approve_NATIVE"] = (Math.floor((d[i].purchase / d[i].approve_NATIVE) * 100)) + "%";
-      d[i]["purchase_SDK/approve_SDK"] = Math.floor((d[i].purchase / d[i].approve_SDK) * 100) + "%";
-
+  
+  const login = () => {
+    if (pass === PASS_KEY) {
+      getData();
+      setStart(true);
+    } else {
+      alert("wrong passowrd");
     }
-    setData(d);
   }
+  const logout = () => {
+    setStart(false);
+    setLoading(false);
+    setPass("");
+  }
+  const handleSetPass = (passowrd) => {
+    setPass(passowrd)
+  }
+
+/////////////////////// time and date related functions
   const resetTimes = () => {
     settFrom(0);
     settTo(today)
   }
-  const handleFrom = (t) => {
-    settFrom(t);
-    console.log("from: " + t)
+  const handleFrom = (time) => {
+    settFrom(time);
+    console.log("from: " + time)
   }
-  const handleTo = (t) => {
-    settTo(t)
-    console.log("to: " + t)
+  const handleTo = (time) => {
+    settTo(time)
+    console.log("to: " + time)
   }
   const getToday = () => {
 
@@ -114,47 +118,113 @@ function App() {
 
     return today2.getFullYear() + "-" + (month) + "-" + day;
   }
+  const getDate = (day, index) => {
+
+    if ((today - day) === 0) {
+      return "Today"
+    }
+    else if (today - day === 1) {
+      return "Yesterday"
+    }
+    else {
+      return new Date(day * 86400000).toLocaleDateString()
+    }
+  }
+
+//////////////////////event handeling functions
   const resetEvents = () => {
     setDisplayedEvents(DEFAULT_EVENTS);
   }
   const clearEvents = () => {
     setDisplayedEvents([]);
   }
-  const getApps = (d) => {
+  const addEvent = (event) => {
+    console.log(event);
+    for (let i = 0; i < displayedEvents.length; i++) {
+      if (displayedEvents[i] === event)
+        return;
+    }
+
+    setDisplayedEvents([...displayedEvents, event]);
+  }
+  const removeEvent = (event) => {
+    let newArr = []
+    for (let i = 0; i < displayedEvents.length; i++) {
+      if (displayedEvents[i] === event)
+        continue;
+      else
+        newArr = [...newArr, displayedEvents[i]];
+    }
+    setDisplayedEvents(newArr);
+  }
+  const addAllEvents = () => {
+    let newArr = [];
+
+// for(let event of events){
+//   console.log(event);
+// }
+    console.log(events);
+    for (let i = 0; i < events.length; i++) {
+      if (events[i] === "app" || events[i] === "day") {
+        continue;
+      } else {
+        newArr = [...newArr, events[i]];
+      }
+    }
+    setDisplayedEvents(newArr);
+  }
+  const handleObjectEvents = (eventsArr) => {
+    let newArr = []
+    for (let i = 0; i < eventsArr.length; i++) {
+      newArr = [...newArr, { label: eventsArr[i], value: eventsArr[i] }]
+    }
+    setEventsObject(newArr);
+  }
+  const getEvents = (dataArr) => {
+    let eventsNames = [];
+    for (let i = 0; i < dataArr.length; i++) {
+
+      for (var event in dataArr[i]) {
+        let isNew = true;
+        for (let j = 0; j < eventsNames.length; j++) {
+          if (event === eventsNames[j] || dataArr[i].event === null) {
+            isNew = false;
+          }
+        }
+        if (isNew) {
+          eventsNames = [...eventsNames, event];
+        }
+      }
+    }
+    eventsNames.sort();
+    setEvents(eventsNames);
+    handleObjectEvents(eventsNames)
+  }
+
+///////////////////// apps handeling functions
+  const getApps = (dataArr) => {
     let newApps = [];
     let exists = false;
-    for (let i = 0; i < d.length; i++) {
+    for (let i = 0; i < dataArr.length; i++) {
       for (let j = 0; j < newApps.length; j++) {
-        if (d[i].app === newApps[j]) {
+        if (dataArr[i].app === newApps[j]) {
           exists = true;
           break;
         }
 
       }
       if (!exists)
-        newApps = [...newApps, d[i].app];
+        newApps = [...newApps, dataArr[i].app];
       exists = false;
     }
     setApps(newApps);
     setDisplayedApps(newApps);
-    updateDispalyedData(d);
+    updateDispalyedData(dataArr);
 
   }
   const resetApps = () => {
     setData(ogData);
     getApps(ogData);
-  }
-  const updateDispalyedData = () => {
-
-    let newDispData = []
-    for (let i = 0; i < data.length; i++) {
-      for (let j = 0; j < displayedApps.length; j++) {
-        if (data[i].app === displayedApps[j]) {
-          newDispData = [...newDispData, data[i]]
-        }
-      }
-    }
-    setdisplayedData(newDispData);
   }
   const removeApp = (app) => {
     let newDispApps = [];
@@ -201,61 +271,6 @@ function App() {
 
     setDisplayedApps([...displayedApps, app]);
   }
-  const checkIfChecked = (event) => {
-    for (let i = 0; i < displayedEvents.length; i++) {
-      if (event === displayedEvents[i])
-        return true
-    }
-    return false;
-  }
-  const sortByName = () => {
-    // displayedEvents.sort();
-
-    displayedEvents.sort(
-      function (a, b) {
-        if (a.toLowerCase() < b.toLowerCase()) return -1;
-        if (a.toLowerCase() > b.toLowerCase()) return 1;
-        return 0;
-      }
-    );
-    setDisplayedEvents(displayedEvents);
-    console.log(displayedEvents);
-
-
-  }
-  const changeName = (n) => {
-
-    let nameMap = {
-      PaymentSheetView_appear_NATIVE: "Pop Native",
-      app_launch_NATIVE: "App Launch Native",
-      app_launch_SDK: "App Launch SDK",
-      approve_NATIVE: "Approve Native",
-      approve_SDK: "Approve SDK",
-      fail_NATIVE: "Fail Native",
-      fail_SDK: "Fail SDK",
-      pop_SDK: "Pop SDK",
-      purchase_NATIVE: "Purchase Native",
-      purchase_SDK: "Purchase SDK",
-      first_launch: "Fisrt Launch",
-      ["PaymentSheetView_appear_NATIVE/app_launch_NATIVE"]: "Pop Native / App Launch Native Rate",
-      ["pop_SDK/app_launch_SDK"]: "Pop SDK/ app Launch SDK Rate",
-      ["approve_NATIVE/PaymentSheetView_appear_NATIVE"]: "Approve Native/ Pop Native Rate",
-      ["approve_SDK/pop_SDK"]: "Approve SDK / Pop SDK Rate",
-      ["purchase_NATIVE/approve_NATIVE"]: "Purchase Native/ Approve Native Rate",
-      ["purchase_SDK/approve_SDK"]: "Purchase SDK/ Approve SDK Rate"
-
-
-
-    }
-
-    if (!nameMap[n]) {
-      return n;
-    } else {
-      // return nameMap[n] + " (" + n + ")";
-      return nameMap[n];
-    }
-    return nameMap[n] || n;
-  }
   const setNextMoviesEvetns = () => {
     setDisplayedEvents(DEFAULT_NEXT);
   }
@@ -265,6 +280,8 @@ function App() {
     setDisplayedApps([]);
     addApp("oded.Movies");
   }
+
+///////////////////////// custom Sort functions
   const sortAppByValue = (app) => {
     let tmp = "";
     if (true) {
@@ -292,76 +309,20 @@ function App() {
 
     setDisplayedEvents(displayedEvents);
   }
-  const login = () => {
-    if (pass === PASS_KEY) {
-      getData();
-      setStart(true);
-    } else {
-      alert("wrong passowrd");
-    }
-  }
-  const logout = () => {
-    setStart(false);
-    setLoading(false);
-    setPass("");
-  }
-  const handleSetPass = (p) => {
-    setPass(p)
-  }
-  async function getData() {
+  const sortByName = () => {
+    // displayedEvents.sort();
 
-    let reportsArr = [];
-    setLoading(true);
-    let lambdaReport = await getDataFromLambda()
-    setLoading(false);
-    // console.log(lambdaReport)
-
-    lambdaReport.map((line) => {
-      reportsArr = [...reportsArr, line]
-    })
-    sortRep(reportsArr);
-    // daysCheck();
-    // console.log(reportsArr);
-
-    setData(reportsArr);
-    setOgData(reportsArr);
-    getApps(reportsArr);
-    generateNewEvents(reportsArr);
-
-    getEvents(reportsArr);
-
-
-  }
-  async function getDataFromLambda() {
-    return fetch(API_KEY)
-      .then(data => data.json())
-  }
-  const handleObjectEvents = (eventsArr) => {
-    let newArr = []
-    for (let i = 0; i < eventsArr.length; i++) {
-      newArr = [...newArr, { label: eventsArr[i], value: eventsArr[i] }]
-    }
-    setEventsObject(newArr);
-  }
-  const getEvents = (d) => {
-    let eventsNames = [];
-    for (let i = 0; i < d.length; i++) {
-
-      for (var event in d[i]) {
-        let isNew = true;
-        for (let j = 0; j < eventsNames.length; j++) {
-          if (event === eventsNames[j] || d[i].event === null) {
-            isNew = false;
-          }
-        }
-        if (isNew) {
-          eventsNames = [...eventsNames, event];
-        }
+    displayedEvents.sort(
+      function (a, b) {
+        if (a.toLowerCase() < b.toLowerCase()) return -1;
+        if (a.toLowerCase() > b.toLowerCase()) return 1;
+        return 0;
       }
-    }
-    eventsNames.sort();
-    setEvents(eventsNames);
-    handleObjectEvents(eventsNames)
+    );
+    setDisplayedEvents(displayedEvents);
+    console.log(displayedEvents);
+
+
   }
   function sortRep(arr) {
     if (order === "lth") {
@@ -381,49 +342,101 @@ function App() {
     }
 
   }
-  const getDate = (day, index) => {
 
-    if ((today - day) === 0) {
-      return "Today"
-    }
-    else if (today - day === 1) {
-      return "Yesterday"
-    }
-    else {
-      return new Date(day * 86400000).toLocaleDateString()
-    }
+/////////////// data pulling 
+  async function getData() {
+
+    let reportsArr = [];
+    setLoading(true);
+    let lambdaReport = await getDataFromLambda()
+    setLoading(false);
+    // console.log(lambdaReport)
+
+    lambdaReport.map((line) => {
+      reportsArr = [...reportsArr, line]
+    })
+
+
+    let allData = {1456890:{"oded.Movies":{app_launch:6,pop:9},"com.aspAdblock":{app_launch:3,pop:0}}}
+
+    sortRep(reportsArr);
+    // daysCheck();
+    // console.log(reportsArr);
+
+    setData(reportsArr);
+    setOgData(reportsArr);
+    getApps(reportsArr);
+    generateNewEvents(reportsArr);
+
+    getEvents(reportsArr);
+
+
   }
-  const addEvent = (event) => {
-    console.log(event);
-    for (let i = 0; i < displayedEvents.length; i++) {
-      if (displayedEvents[i] === event)
-        return;
+  async function getDataFromLambda() {
+    return fetch(API_KEY)
+      .then(data => data.json())
+  }
+
+  const changeName = (name) => {
+
+    let nameMap = {
+      PaymentSheetView_appear_NATIVE: "Pop Native",
+      app_launch_NATIVE: "App Launch Native",
+      app_launch_SDK: "App Launch SDK",
+      approve_NATIVE: "Approve Native",
+      approve_SDK: "Approve SDK",
+      fail_NATIVE: "Fail Native",
+      fail_SDK: "Fail SDK",
+      pop_SDK: "Pop SDK",
+      purchase_NATIVE: "Purchase Native",
+      purchase_SDK: "Purchase SDK",
+      first_launch: "Fisrt Launch",
+      ["PaymentSheetView_appear_NATIVE/app_launch_NATIVE"]: "Pop Native / App Launch Native Rate",
+      ["pop_SDK/app_launch_SDK"]: "Pop SDK/ app Launch SDK Rate",
+      ["approve_NATIVE/PaymentSheetView_appear_NATIVE"]: "Approve Native/ Pop Native Rate",
+      ["approve_SDK/pop_SDK"]: "Approve SDK / Pop SDK Rate",
+      ["purchase_NATIVE/approve_NATIVE"]: "Purchase Native/ Approve Native Rate",
+      ["purchase_SDK/approve_SDK"]: "Purchase SDK/ Approve SDK Rate"
+
+
+
     }
 
-    setDisplayedEvents([...displayedEvents, event]);
-  }
-  const removeEvent = (event) => {
-    let newArr = []
-    for (let i = 0; i < displayedEvents.length; i++) {
-      if (displayedEvents[i] === event)
-        continue;
-      else
-        newArr = [...newArr, displayedEvents[i]];
+    if (!nameMap[name]) {
+      return name;
+    } else {
+      // return nameMap[n] + " (" + name + ")";
+      return nameMap[name];
     }
-    setDisplayedEvents(newArr);
+    return nameMap[name] || name;
   }
-  const addAll = () => {
-    let newArr = [];
-    for (let i = 0; i < events.length; i++) {
-      if (events[i] === "app" || events[i] === "day") {
-        continue;
-      } else {
-        newArr = [...newArr, events[i]];
+  const updateDispalyedData = () => {
+
+    let newDispData = []
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < displayedApps.length; j++) {
+        if (data[i].app === displayedApps[j]) {
+          newDispData = [...newDispData, data[i]]
+        }
       }
     }
-    setDisplayedEvents(newArr);
+    setdisplayedData(newDispData);
   }
 
+  const generateNewEvents = (dataArr) => { // make new events for the rates between events
+    for (let i = 0; i < dataArr.length; i++) {
+      dataArr[i]["PaymentSheetView_appear_NATIVE/app_launch_NATIVE"] = (Math.floor((dataArr[i].PaymentSheetView_appear_NATIVE / dataArr[i].app_launch_NATIVE) * 100)) + "%";
+      dataArr[i]["pop_SDK/app_launch_SDK"] = (Math.floor((dataArr[i].pop_SDK / dataArr[i].app_launch_SDK) * 100)) + "%";
+      dataArr[i]["approve_NATIVE/PaymentSheetView_appear_NATIVE"] = (Math.floor((dataArr[i].approve / dataArr[i].PaymentSheetView_appear_NATIVE) * 100)) + "%";
+      dataArr[i]["approve_SDK/pop_SDK"] = (Math.floor((dataArr[i].approve / dataArr[i].pop_SDK) * 100)) + "%";
+      dataArr[i]["purchase_NATIVE/approve_NATIVE"] = (Math.floor((dataArr[i].purchase / dataArr[i].approve_NATIVE) * 100)) + "%";
+      dataArr[i]["purchase_SDK/approve_SDK"] = Math.floor((dataArr[i].purchase / dataArr[i].approve_SDK) * 100) + "%";
+
+    }
+    setData(dataArr);
+  }
+
+  
   return (
     <div className="App">
 
@@ -439,7 +452,7 @@ function App() {
 
       <div className="row">
         <div className="col-6">
-          <TableControls setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAll} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+          <TableControls setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAllEvents} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
 
         </div>
         <div className="col-6">
