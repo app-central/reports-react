@@ -9,15 +9,15 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import { blue } from '@material-ui/core/colors';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'flex',
-        '& > * + *': {
-            marginLeft: theme.spacing(2),
+// const useStyles = makeStyles((theme) => ({
+//     root: {
+//         display: 'flex',
+//         '& > * + *': {
+//             marginLeft: theme.spacing(2),
          
-        },
-    },
-}));
+//         },
+//     },
+// }));
 const theme = createMuiTheme({
     palette: {
         primary: {
@@ -27,11 +27,41 @@ const theme = createMuiTheme({
      });
 
 export default function Table(props) {
-    // const classes = useStyles();
 
     const [sortEvents, setSortEvents] = useState(false)
-    const [highlight, setHighlight] = useState(-1)
+    const [highlight, setHighlight] = useState([])
 
+
+    const highlightCheck = (index) =>{
+        for (let i = 0; i < highlight.length; i++) {
+
+            if(highlight[i] === index){
+                console.log("ture")
+                return true
+            }
+        }
+        console.log("false");
+        return false;
+    }
+    const highlightRemove = (index) =>{
+        let newHiglight = [];
+        for (let i = 0; i < highlight.length; i++) {
+            if(highlight[i] === index){
+                continue;
+            }
+            newHiglight = [...newHiglight, highlight[i]]            
+        }
+        setHighlight(newHiglight)
+    }
+    const highlightAdd = (index) =>{
+        let newHiglight = [];
+        highlight.forEach(element => {
+            newHiglight = [...newHiglight, element]
+        });
+        newHiglight = [...newHiglight, index]
+        setHighlight(newHiglight);
+
+    }
     const handleSort = (line) => {
         props.sortAppEvents(line)
         setSortEvents(!sortEvents);
@@ -46,9 +76,6 @@ export default function Table(props) {
     if (props.loading) {
         return (
             <div className="loading">
-                {/* <ReactLoading type={'spin'} color={"blue"} height={'80px'} width={'80px'} /> */}
-                {/* <CircularProgress height={'80px'} width={'80px'} /> */}
-                {/* <div className={classes.root}> */}
                 <ThemeProvider theme={theme}>
 
                     <CircularProgress size={80} color="primary" thickness={4} />
@@ -58,7 +85,6 @@ export default function Table(props) {
     } else if (props.data.length === 0) {
         return (
             <div>
-                {/* <CircularProgress size={80} color="inherit" thickness={4} /> */}
 
             </div>
         )
@@ -84,9 +110,9 @@ export default function Table(props) {
                     </thead>
                     {props.events.map((event, index) => {
                         return (
-                            <tr style={highlight === index ? { backgroundColor: "yellow", fontWeight: "bold" } : { backgroundColor: "white" }} onClick={() => { highlight === index ? setHighlight(-1) : setHighlight(index) }} >
+                            <tr style={highlightCheck(index) === true ? { backgroundColor: "yellow", fontWeight: "bold" } : { backgroundColor: "white" }} onClick={() => { highlightCheck(index) === true ? highlightRemove(index) : highlightAdd(index) }} >
 
-                                <th onClick={() => { highlight === index ? setHighlight(-1) : setHighlight(index) }} className="ver-th" style={highlight === index ? { backgroundColor: "yellow" } : { backgroundColor: "white" }}     >
+                                <th onClick={() => { highlightCheck(index) === true ? highlightRemove(index) : highlightAdd(index) }} className="ver-th" style={highlightCheck(index) === true ? { backgroundColor: "yellow" } : { backgroundColor: "white" }}     >
                                     <span className="test">
                                         <ArrowTooltips name={event} newName={props.changeName(event)} />
 

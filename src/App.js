@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 
 import './App.css';
 import FilterMenu from './components/FilterMenu';
-import Login from './components/Login';   
+import Login from './components/Login';
 import Table from './components/Table';
 import TableControls from './components/TableControls';
 import TimeSelection from './components/TimeSelection';
@@ -52,7 +52,8 @@ const DEFAULT_EVENTS = [
   "restore",
   "restored",
   "paywall_loaded",
-  "dismiss",  
+  "dismiss",
+  "first_launch"
 ];
 
 
@@ -87,7 +88,6 @@ function App() {
     }
     setData(d);
   }
-
   const resetTimes = () => {
     settFrom(0);
     settTo(today)
@@ -100,7 +100,6 @@ function App() {
     settTo(t)
     console.log("to: " + t)
   }
-
   const getToday = () => {
 
     let day = today2.getDate().toString();
@@ -115,7 +114,6 @@ function App() {
 
     return today2.getFullYear() + "-" + (month) + "-" + day;
   }
-
   const resetEvents = () => {
     setDisplayedEvents(DEFAULT_EVENTS);
   }
@@ -203,7 +201,6 @@ function App() {
 
     setDisplayedApps([...displayedApps, app]);
   }
-
   const checkIfChecked = (event) => {
     for (let i = 0; i < displayedEvents.length; i++) {
       if (event === displayedEvents[i])
@@ -211,7 +208,6 @@ function App() {
     }
     return false;
   }
-
   const sortByName = () => {
     // displayedEvents.sort();
 
@@ -260,22 +256,21 @@ function App() {
     }
     return nameMap[n] || n;
   }
-  const setNextMoviesEvetns = () =>{
+  const setNextMoviesEvetns = () => {
     setDisplayedEvents(DEFAULT_NEXT);
   }
-  const setNextMoviesApp = () =>{
+  const setNextMoviesApp = () => {
     // setDisplayedApps(["oded.Movies"])
-     setData([]);
+    setData([]);
     setDisplayedApps([]);
     addApp("oded.Movies");
   }
-
   const sortAppByValue = (app) => {
     let tmp = "";
     if (true) {
       for (let j = 0; j < displayedEvents.length; j++) {
         for (let i = 0; i < displayedEvents.length - 1; i++) {
-          
+
           if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i]] || isNaN(app[displayedEvents[i]])) {
             tmp = displayedEvents[i];
             displayedEvents[i] = displayedEvents[i + 1];
@@ -297,7 +292,6 @@ function App() {
 
     setDisplayedEvents(displayedEvents);
   }
-
   const login = () => {
     if (pass === PASS_KEY) {
       getData();
@@ -306,17 +300,14 @@ function App() {
       alert("wrong passowrd");
     }
   }
-
   const logout = () => {
     setStart(false);
     setLoading(false);
     setPass("");
   }
-
   const handleSetPass = (p) => {
     setPass(p)
   }
-
   async function getData() {
 
     let reportsArr = [];
@@ -432,6 +423,7 @@ function App() {
     }
     setDisplayedEvents(newArr);
   }
+
   return (
     <div className="App">
 
@@ -441,10 +433,9 @@ function App() {
         <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
 
       </div>
-      {/* <FilterMenu eventsObject={eventsObject} displayedEvents={displayedEvents} checkIfChecked={checkIfChecked} today={today} start={start} clear={clearEvents} resetEvents={resetEvents} addEvent={addEvent} events={events} /> */}
-      
-      
-      <TimeSelection loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} /> 
+
+
+      <TimeSelection loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} />
 
       <div className="row">
         <div className="col-6">
@@ -464,9 +455,9 @@ function App() {
       <br />
       <br />
       <div>
-    
-       {
-       }
+
+        {
+        }
 
       </div>
 

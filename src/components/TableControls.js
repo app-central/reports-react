@@ -1,6 +1,5 @@
 import React from 'react'
 import DropDown from './DropDown'
-import LimitTags from './LimitTags'
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 
