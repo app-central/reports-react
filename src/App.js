@@ -426,10 +426,9 @@ function App() {
 
     let allData = { 1456890: { "oded.Movies": { app_launch: 6, pop: 9 }, "com.aspAdblock": { app_launch: 3, pop: 0 } } }
 
+    sortRep(reportsArr);
     // daysCheck();
     // console.log(reportsArr);
-    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
-    sortRep(reportsArr);
 
     setData(reportsArr);
     setOgData(reportsArr);
@@ -551,6 +550,7 @@ function App() {
         }
       }
     }
+    console.log(convertAppleDate("11/27/2020"));
 
 
 
@@ -719,7 +719,7 @@ function App() {
       <div>
 
       </div>
-      <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} />
+      {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} /> */}
     </div>
   );
 }
