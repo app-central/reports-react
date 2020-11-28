@@ -14,7 +14,7 @@ import { blue } from '@material-ui/core/colors';
 //         display: 'flex',
 //         '& > * + *': {
 //             marginLeft: theme.spacing(2),
-         
+
 //         },
 //     },
 // }));
@@ -22,9 +22,9 @@ const theme = createMuiTheme({
     palette: {
         primary: {
             main: '#0f84e4'
-          }
-       }
-     });
+        }
+    }
+});
 
 export default function Table(props) {
 
@@ -32,26 +32,26 @@ export default function Table(props) {
     const [highlight, setHighlight] = useState([])
 
 
-    const highlightCheck = (index) =>{
+    const highlightCheck = (index) => {
         for (let i = 0; i < highlight.length; i++) {
 
-            if(highlight[i] === index){
+            if (highlight[i] === index) {
                 return true
             }
         }
         return false;
     }
-    const highlightRemove = (index) =>{
+    const highlightRemove = (index) => {
         let newHiglight = [];
         for (let i = 0; i < highlight.length; i++) {
-            if(highlight[i] === index){
+            if (highlight[i] === index) {
                 continue;
             }
-            newHiglight = [...newHiglight, highlight[i]]            
+            newHiglight = [...newHiglight, highlight[i]]
         }
         setHighlight(newHiglight)
     }
-    const highlightAdd = (index) =>{
+    const highlightAdd = (index) => {
         let newHiglight = [];
         highlight.forEach(element => {
             newHiglight = [...newHiglight, element]
@@ -69,7 +69,6 @@ export default function Table(props) {
         setSortEvents(!sortEvents);
     }
 
-
     if (props.loading) {
         return (
             <div className="loading">
@@ -77,7 +76,7 @@ export default function Table(props) {
 
                     <CircularProgress size={80} color="primary" thickness={4} />
                 </ThemeProvider>
-                            </div>
+            </div>
         );
     } else if (props.data.length === 0) {
         return (
@@ -87,49 +86,54 @@ export default function Table(props) {
         )
     } else if (props.start) {
         return (
-            <div className="table-box">
+            <div>
 
-                <table className="table">
-                    <thead className="thead-light">
-                        <tr >
-                            <th className="ver-th blank-cell" > <button className="btn" onClick={() => { handleSortByName() }}>⌄</button> </th>
-                            {
-                                props.data.filter((app) => { return (app.day >= props.tFrom && app.day <= props.tTo) }).map((line, index) => {
-                                    return (
-                                        <th  >{line.app}    <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
-                                        </th>
-                                    )
-                                })
-                            }
+                <div className="table-box">
 
-                            <th></th>
-                        </tr>
-                    </thead>
-                    {props.events.map((event, index) => {
-                        return (
-                            <tr style={highlightCheck(index) === true ? { backgroundColor: "yellow", fontWeight: "bold" } : { backgroundColor: "white" }} onClick={() => { highlightCheck(index) === true ? highlightRemove(index) : highlightAdd(index) }} >
-
-                                <th onClick={() => { highlightCheck(index) === true ? highlightRemove(index) : highlightAdd(index) }} className="ver-th" style={highlightCheck(index) === true ? { backgroundColor: "yellow" } : { backgroundColor: "white" }}     >
-                                    <span className="test">
-                                        <ArrowTooltips name={event} newName={props.changeName(event)} />
-
-
-
-                                    </span></th>
+                    <table className="table">
+                        <thead className="thead-light">
+                            <tr >
+                                <th className="ver-th blank-cell" > <button className="btn" onClick={() => { handleSortByName() }}>⌄</button> </th>
                                 {
                                     props.data.filter((app) => { return (app.day >= props.tFrom && app.day <= props.tTo) }).map((line, index) => {
                                         return (
-                                            <td   >{line[event] || "n/a"}</td>
+                                            <th  >{line.app}    <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
+                                            </th>
                                         )
                                     })
                                 }
+
+                                <th></th>
                             </tr>
-                        );
-                    })
+                        </thead>
+                        {props.events.map((event, index) => {
+                            return (
+                                <tr style={highlightCheck(index) === true ? { backgroundColor: "yellow", fontWeight: "bold" } : { backgroundColor: "white" }} onClick={() => { highlightCheck(index) === true ? highlightRemove(index) : highlightAdd(index) }} >
 
-                    }
+                                    <th onClick={() => { highlightCheck(index) === true ? highlightRemove(index) : highlightAdd(index) }} className="ver-th" style={highlightCheck(index) === true ? { backgroundColor: "yellow" } : { backgroundColor: "white" }}     >
+                                        <span className="test">
+                                            <ArrowTooltips name={event} newName={props.changeName(event)} />
 
-                </table>
+
+
+                                        </span></th>
+                                    {
+                                        props.data.filter((app) => { return (app.day >= props.tFrom && app.day <= props.tTo) }).map((line, index) => {
+                                            return (
+                                                <td   >{line[event] || "n/a"}</td>
+                                            )
+                                        })
+                                    }
+                                </tr>
+                            );
+                        })
+
+                        }
+
+                    </table>
+
+
+                </div>
 
             </div>
         )

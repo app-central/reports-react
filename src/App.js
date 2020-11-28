@@ -4,11 +4,13 @@ import { createPopper } from '@popperjs/core';
 import Button from '@material-ui/core/Button';
 
 import './App.css';
-import FilterMenu from './components/FilterMenu';
+// import FilterMenu from './components/FilterMenu';
 import Login from './components/Login';
 import Table from './components/Table';
 import TableControls from './components/TableControls';
 import TimeSelection from './components/TimeSelection';
+import Header from './components/Header';
+import AppleTesting from './components/AppleTesting';
 
 
 const button = document.querySelector('#button');
@@ -20,6 +22,8 @@ var today2 = new Date();
 const today = Math.floor(Date.now() / 86400000);
 console.log(today);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
+const APPLE_API_KEY = process.env.REACT_APP_DATA_APPLE_API_KEY;
+
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
 const DEFAULT_NEXT = ["first_launch",
   "app_launch_NATIVE",
@@ -51,11 +55,64 @@ const DEFAULT_EVENTS = [
   "restored",
   "paywall_loaded",
   "dismiss",
-  "first_launch"
+  "first_launch",
+  "Free or paid app - iPhone and iPod touch (iOS)",
+  "Update - iPhone and iPod touch (iOS)",
+  "App Bundle",
+  "Paid app - Custom iPhone and iPod touch (iOS)",
+  "Paid app - Custom iPad (iOS)",
+  "Paid app - Custom universal (iOS)",
+  "Free or paid app - Universal (iOS)",
+  "Free or paid app - iPad (iOS)",
+  "Update - Universal (iOS)",
+  "Update - iPad (iOS)",
+  "Free or paid app - Mac app",
+  "Update - Mac app",
+  "In-App Purchase - Mac app",
+  "In-App Purchase - Purchase (iOS)",
+  "In-App Purchase - Purchase (Mac)",
+  "In-App Purchase - Subscription (iOS)",
+  "In-App Purchase - Subscription (Mac)",
+  "In-App Purchase - Free subscription (iOS)",
+  "In-App Purchase - Free subscription (Mac)",
+  "In-App Purchase - Auto-renewable subscription (iOS)",
+  "In-App Purchase - Auto-renewable subscription (Mac)",
+  "Redownload of iPhone-only, or iOS and tvOS app (excluding iPad-only)",
+  "Redownload of Universal app (excluding tvOS)",
+  "Redownload of iPad-only app",
+  "Redownload of Mac app"
 ];
+//////////////////////// 
 
+const PRODUCT_TYPE_IDENTIFIER = {
+  "1": "Free or paid app - iPhone and iPod touch (iOS)",
+  "7": "Update - iPhone and iPod touch (iOS)",
+  "1-B": "App Bundle",
+  "1E": "Paid app - Custom iPhone and iPod touch (iOS)",
+  "1EP": "Paid app - Custom iPad (iOS)",
+  "1EU": "Paid app - Custom universal (iOS)",
+  "1F": "Free or paid app - Universal (iOS)",
+  "1T": "Free or paid app - iPad (iOS)",
+  "7F": "Update - Universal (iOS)",
+  "7T": "Update - iPad (iOS)",
+  "F1": "Free or paid app - Mac app",
+  "F7": "Update - Mac app",
+  "FI1": "In-App Purchase - Mac app",
+  "IA1": "In-App Purchase - Purchase (iOS)",
+  "IA1-M": "In-App Purchase - Purchase (Mac)",
+  "IA9": "In-App Purchase - Subscription (iOS)",
+  "IA9-M": "In-App Purchase - Subscription (Mac)",
+  "IAC": "In-App Purchase - Free subscription (iOS)",
+  "IAC-M": "In-App Purchase - Free subscription (Mac)",
+  "IAY": "In-App Purchase - Auto-renewable subscription (iOS)",
+  "IAY-M": "In-App Purchase - Auto-renewable subscription (Mac)",
+  "3": "Redownload of iPhone-only, or iOS and tvOS app (excluding iPad-only)",
+  "3F": "Redownload of Universal app (excluding tvOS)",
+  "3T": "Redownload of iPad-only app",
+  "F3": "Redownload of Mac app"
+}
 
-
+//////////////////////
 function App() {
 
   const [start, setStart] = useState(false)
@@ -72,8 +129,11 @@ function App() {
   const [ogData, setOgData] = useState([])
   const [tFrom, settFrom] = useState(0)
   const [tTo, settTo] = useState(today)
+  const [hideFilters, setHideFilters] = useState(false)
+  const [showApple, setShowApple] = useState(false);
+  const [appleData, setAppleData] = useState(null)
+  const [appsIdMap, setAppsIdMap] = useState()
 
-  
   const login = () => {
     if (pass === PASS_KEY) {
       getData();
@@ -91,7 +151,7 @@ function App() {
     setPass(passowrd)
   }
 
-/////////////////////// time and date related functions
+  /////////////////////// time and date related functions
   const resetTimes = () => {
     settFrom(0);
     settTo(today)
@@ -131,7 +191,7 @@ function App() {
     }
   }
 
-//////////////////////event handeling functions
+  //////////////////////event handeling functions
   const resetEvents = () => {
     setDisplayedEvents(DEFAULT_EVENTS);
   }
@@ -160,9 +220,9 @@ function App() {
   const addAllEvents = () => {
     let newArr = [];
 
-// for(let event of events){
-//   console.log(event);
-// }
+    // for(let event of events){
+    //   console.log(event);
+    // }
     console.log(events);
     for (let i = 0; i < events.length; i++) {
       if (events[i] === "app" || events[i] === "day") {
@@ -201,7 +261,7 @@ function App() {
     handleObjectEvents(eventsNames)
   }
 
-///////////////////// apps handeling functions
+  ///////////////////// apps handeling functions
   const getApps = (dataArr) => {
     let newApps = [];
     let exists = false;
@@ -281,7 +341,7 @@ function App() {
     addApp("oded.Movies");
   }
 
-///////////////////////// custom Sort functions
+  ///////////////////////// custom Sort functions
   const sortAppByValue = (app) => {
     let tmp = "";
     if (true) {
@@ -343,39 +403,230 @@ function App() {
 
   }
 
-/////////////// data pulling 
+  /////////////// data pulling 
   async function getData() {
 
     let reportsArr = [];
     setLoading(true);
     let lambdaReport = await getDataFromLambda()
+    console.log("lambda done");
+    console.log("loading apple");
+    let appleReport = await getAppleDataFromLambda()
+
+    console.log(lambdaReport);
     setLoading(false);
     // console.log(lambdaReport)
-
     lambdaReport.map((line) => {
       reportsArr = [...reportsArr, line]
     })
+    setAppleData(dataToArray(appleReport.data));
+    setAppsIdMap(appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
 
 
-    let allData = {1456890:{"oded.Movies":{app_launch:6,pop:9},"com.aspAdblock":{app_launch:3,pop:0}}}
+    let allData = { 1456890: { "oded.Movies": { app_launch: 6, pop: 9 }, "com.aspAdblock": { app_launch: 3, pop: 0 } } }
 
-    sortRep(reportsArr);
     // daysCheck();
     // console.log(reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
+    sortRep(reportsArr);
 
     setData(reportsArr);
     setOgData(reportsArr);
     getApps(reportsArr);
     generateNewEvents(reportsArr);
-
+    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
     getEvents(reportsArr);
-
 
   }
   async function getDataFromLambda() {
     return fetch(API_KEY)
       .then(data => data.json())
   }
+
+
+
+  ///// apple data
+  async function getAppleDataFromLambda() {
+    return fetch(APPLE_API_KEY)
+      .then(data => data.json())
+
+  }
+
+  const appleDataToString = (data, idMap) => {
+    let ptyIndex = -1;
+    let appleIdentifierIndex = -1;
+    for (let i = 0; i < data[0].length; i++) {
+      if (data[0][i] === "Product Type Identifier") {
+        ptyIndex = i;
+      }
+      if (data[0][i] === "Apple Identifier") {
+        appleIdentifierIndex = i;
+      }
+    }
+
+    for (const key in idMap) {
+      if (!isNaN(idMap[key])) {
+        idMap[key] = idMap[key].toString()
+      }
+    }
+    console.log(idMap);
+
+
+    for (let i = 1; i < data.length; i++) {
+
+      for (const key in idMap) {
+        if (idMap[key] === data[i][appleIdentifierIndex]) {
+          data[i][appleIdentifierIndex] = key;
+          continue;
+        }
+      }
+    }
+    for (let i = 0; i < data.length; i++) {
+      console.log("data[appleIdentifierIndex][i]" + data[i][ptyIndex]);
+
+      for (const key in PRODUCT_TYPE_IDENTIFIER) {
+        if (key === data[i][ptyIndex]) {
+          data[i][ptyIndex] = PRODUCT_TYPE_IDENTIFIER[key];
+        }
+      }
+    }
+    setAppleData(data);
+    return data;
+  }
+
+  const addAppleData = (appleData, reports) => {
+    if (!appleData) {
+      return;
+    }
+    let dateIndex = -1;
+    let nameIndex = -1;
+    let eventIndex = -1;
+    let unitsIndex = -1;
+    let priceIndex = -1;
+    let currencyIndex = -1;
+    let newarr = appleData;
+    let dataCollected = [];
+    for (let i = 0; i < appleData[0].length; i++) {
+      if (appleData[0][i] === "Apple Identifier") {
+        nameIndex = i;
+      } if (appleData[0][i] === "Units") {
+        unitsIndex = i;
+      } if (appleData[0][i] === "Product Type Identifier") {
+        eventIndex = i;
+      } if (appleData[0][i] === "Begin Date") {
+        dateIndex = i;
+      } if (appleData[0][i] === "Customer Price") {
+        priceIndex = i;
+      } if (appleData[0][i] === "Currency of Proceeds") {
+        currencyIndex = i;
+      }
+    }
+
+    let used = false;
+    for (let i = 1; i < appleData.length; i++) {
+      used = false;
+      for (let j = 0; j < reports.length; j++) {
+
+        if (reports[j].day === convertAppleDate(appleData[i][dateIndex]) && reports[j].app === appleData[i][nameIndex]) {
+          if (appleData[i][eventIndex] === "In-App Purchase - Purchase (iOS)" || appleData[i][eventIndex] === "In-App Purchase - Auto-renewable subscription (iOS)") {
+            reports[j][appleData[i][eventIndex]] = appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")";
+            used = true;
+          } else {
+            reports[j][appleData[i][eventIndex]] = appleData[i][unitsIndex];
+            used = true;
+          }
+          continue;
+        }
+      }
+
+
+      if (!used) { /// if the same app in the same day wasnt fount add new object to data with apple data
+
+        if (appleData[i][eventIndex] === "In-App Purchase - Purchase (iOS)" || appleData[i][eventIndex] === "In-App Purchase - Auto-renewable subscription (iOS)") {
+          reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString]: appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")" })
+
+        } else {
+          reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString]: appleData[i][unitsIndex] })
+        }
+      }
+    }
+
+
+
+  }
+
+  const convertAppleDate = (appleDate) => {
+    let index = 0;
+    let datearr = []
+    for (let i = 0; i < appleDate.length; i++) {
+      if (appleDate[i] === "/") {
+        datearr.push(parseInt(appleDate.substr(index, i - index), 10));
+
+        index = i + 1;
+      }
+      if (i === appleDate.length - 1) {
+        datearr.push(appleDate.substr(index, i));
+      }
+    }
+    return Math.floor(new Date(datearr[2], datearr[0] - 1, datearr[1]) / 86400000) + 1;
+  }
+
+  // async function getAppleData() {
+  //   console.log('====================================');
+  //   console.log('getAppleData()');
+  //   console.log('====================================');
+
+  //   // showApple
+
+  //   // setAppleData(JSON.stringify.appleReport);
+
+  //   // console.log(appleData);
+  //   // dataToArray(appleReport);
+  //   // console.log(appleReport.toString());
+  //   // let appleArr = [];
+
+  //   // lambdaReport.map((line) => {
+  //   //   reportsArr = [...reportsArr, line]
+  //   // })
+
+
+
+
+  // }
+
+  const dataToArray = (d) => {
+
+    let bigArr = [];
+    let counter = 0;
+    let arrLine = [];
+    let startIndex = 0;
+    let isSlash = false;
+
+    for (let i = 0; i < d.length; i++) {
+      if (d[i] === "\t") {
+        arrLine.push(d.substr(startIndex, i - startIndex));
+
+        startIndex = i + 1;
+        isSlash = false;
+        continue;
+      }
+      if (d[i] === "\n") {
+        arrLine.push(d.substr(startIndex, i - startIndex));
+        bigArr[counter] = arrLine;
+        arrLine = [];
+        startIndex = i + 1;
+        isSlash = false;
+        counter++
+        continue
+
+      }
+    }
+    console.log("res" + bigArr.length);
+    return bigArr;
+  }
+
+  //////////////////
 
   const changeName = (name) => {
 
@@ -436,27 +687,25 @@ function App() {
     setData(dataArr);
   }
 
-  
+
   return (
     <div className="App">
+      <Header logout={logout} start={start} loading={loading} />
 
-      <div className="header">
-        <h1 onClick={() => { logout() }}> Reports</h1>
-        <br /> <br />
-        <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
+      <br /> <br />
 
-      </div>
+      <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
 
 
-      <TimeSelection loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} />
+      <TimeSelection hide={hideFilters} loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} />
 
       <div className="row">
         <div className="col-6">
-          <TableControls setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAllEvents} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+          <TableControls hide={hideFilters} setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAllEvents} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
 
         </div>
         <div className="col-6">
-          <TableControls setNextMoviesEvetns={setNextMoviesApp} head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
+          <TableControls hide={hideFilters} setNextMoviesEvetns={setNextMoviesApp} head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
 
         </div>
       </div>
@@ -469,11 +718,8 @@ function App() {
       <br />
       <div>
 
-        {
-        }
-
       </div>
-
+      <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} />
     </div>
   );
 }
