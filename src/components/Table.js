@@ -75,6 +75,7 @@ export default function Table(props) {
                 <ThemeProvider theme={theme}>
 
                     <CircularProgress size={80} color="primary" thickness={4} />
+                    <p>{props.loadingStatus}</p>
                 </ThemeProvider>
             </div>
         );

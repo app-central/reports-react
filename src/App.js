@@ -56,38 +56,38 @@ const DEFAULT_EVENTS = [
   "paywall_loaded",
   "dismiss",
   "first_launch",
-  "Free or paid app - iPhone and iPod touch (iOS)",
-  "In-App Purchase - Auto-renewable subscription (iOS)"
+  "🍏 Free or paid app",
+  "🍏 In-App Purchase"
 
 ];
 //////////////////////// 
 
-const PRODUCT_TYPE_IDENTIFIER = {
-  "1": "Free or paid app - iPhone and iPod touch (iOS)",
-  "7": "Update - iPhone and iPod touch (iOS)",
-  "1-B": "App Bundle",
-  "1E": "Paid app - Custom iPhone and iPod touch (iOS)",
-  "1EP": "Paid app - Custom iPad (iOS)",
-  "1EU": "Paid app - Custom universal (iOS)",
-  "1F": "Free or paid app - Universal (iOS)",
-  "1T": "Free or paid app - iPad (iOS)",
-  "7F": "Update - Universal (iOS)",
-  "7T": "Update - iPad (iOS)",
-  "F1": "Free or paid app - Mac app",
-  "F7": "Update - Mac app",
-  "FI1": "In-App Purchase - Mac app",
-  "IA1": "In-App Purchase - Purchase (iOS)",
-  "IA1-M": "In-App Purchase - Purchase (Mac)",
-  "IA9": "In-App Purchase - Subscription (iOS)",
-  "IA9-M": "In-App Purchase - Subscription (Mac)",
-  "IAC": "In-App Purchase - Free subscription (iOS)",
-  "IAC-M": "In-App Purchase - Free subscription (Mac)",
-  "IAY": "In-App Purchase - Auto-renewable subscription (iOS)",
-  "IAY-M": "In-App Purchase - Auto-renewable subscription (Mac)",
-  "3": "Redownload of iPhone-only, or iOS and tvOS app (excluding iPad-only)",
-  "3F": "Redownload of Universal app (excluding tvOS)",
-  "3T": "Redownload of iPad-only app",
-  "F3": "Redownload of Mac app"
+const PRODUCT_TYPE_IDENTIFIER = { ///https://help.apple.com/app-store-connect/#/dev63c6f4502
+  "1": "🍏 Free or paid app",
+  "7": "🍏 App Bundle",
+  "1-B": "🍏 App Bundle",
+  "1E": "🍏 Paid app",
+  "1EP": "🍏 Paid app",
+  "1EU": "🍏 Paid app",
+  "1F": "🍏 Free or paid app",
+  "1T": "🍏 Free or paid app",
+  "7F": "🍏 Update",
+  "7T": "🍏 Update",
+  "F1": "🍏 Free or paid app",
+  "F7": "🍏 Update",
+  "FI1": "🍏 In-App Purchase",
+  "IA1": "🍏 In-App Purchase",
+  "IA1-M": "🍏 In-App Purchase",
+  "IA9": "🍏 In-App Purchase",
+  "IA9-M": "🍏 In-App Purchase",
+  "IAC": "🍏 In-App Purchase",
+  "IAC-M": "🍏 In-App Purchase",
+  "IAY": "🍏 In-App Purchase",
+  "IAY-M": "🍏 In-App Purchase",
+  "3": "🍏 Redownload",
+  "3F": "🍏 Redownload",
+  "3T": "🍏 Redownload",
+  "F3": "🍏 Redownload"
 }
 
 //////////////////////
@@ -111,7 +111,7 @@ function App() {
   const [showApple, setShowApple] = useState(false);
   const [appleData, setAppleData] = useState(null)
   const [appleData2, setAppleData2] = useState(null)
-
+  const [loadingStatus, setLoadingStatus] = useState("")
   const [appsIdMap, setAppsIdMap] = useState()
 
   const login = () => {
@@ -388,12 +388,11 @@ function App() {
 
     let reportsArr = [];
     setLoading(true);
-
-    console.log("loading lambda...");
+    setLoadingStatus("Fetching data from lambda...");
     let lambdaReport = await getDataFromLambda()
-    console.log("loading apple...");
+    setLoadingStatus("Fetching data from Apple...");
     let appleReport = await getAppleDataFromLambda()
-    console.log("done!");
+    setLoadingStatus("Done!");
 
     setLoading(false);
 
@@ -707,7 +706,7 @@ function App() {
         </div>
       </div>
 
-      <Table tFrom={tFrom} tTo={tTo} sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
+      <Table loadingStatus={loadingStatus} tFrom={tFrom} tTo={tTo} sortByName={sortByName} sortAppEvents={sortAppByValue} loading={loading} changeName={changeName} data={data} getDate={getDate} start={start} events={displayedEvents} />
 
 
 
@@ -716,7 +715,7 @@ function App() {
       <div>
 
       </div>
-      <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} />
+      {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} /> */}
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData2} start={start} loading={loading} /> */}
 
 
