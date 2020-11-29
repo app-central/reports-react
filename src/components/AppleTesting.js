@@ -33,7 +33,7 @@ export default function AppleTesting(props) {
         )
     } else {
         return (
-            <div> {props.idmap["3F"]}</div>
+            <div></div>
         )
     }
 

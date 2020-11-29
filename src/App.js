@@ -20,7 +20,7 @@ const tooltip = document.querySelector('#tooltip');
 var today2 = new Date();
 // console.log(tday);
 const today = Math.floor(Date.now() / 86400000);
-console.log(today);
+// console.log(today);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const APPLE_API_KEY = process.env.REACT_APP_DATA_APPLE_API_KEY;
 
@@ -57,30 +57,8 @@ const DEFAULT_EVENTS = [
   "dismiss",
   "first_launch",
   "Free or paid app - iPhone and iPod touch (iOS)",
-  "Update - iPhone and iPod touch (iOS)",
-  "App Bundle",
-  "Paid app - Custom iPhone and iPod touch (iOS)",
-  "Paid app - Custom iPad (iOS)",
-  "Paid app - Custom universal (iOS)",
-  "Free or paid app - Universal (iOS)",
-  "Free or paid app - iPad (iOS)",
-  "Update - Universal (iOS)",
-  "Update - iPad (iOS)",
-  "Free or paid app - Mac app",
-  "Update - Mac app",
-  "In-App Purchase - Mac app",
-  "In-App Purchase - Purchase (iOS)",
-  "In-App Purchase - Purchase (Mac)",
-  "In-App Purchase - Subscription (iOS)",
-  "In-App Purchase - Subscription (Mac)",
-  "In-App Purchase - Free subscription (iOS)",
-  "In-App Purchase - Free subscription (Mac)",
-  "In-App Purchase - Auto-renewable subscription (iOS)",
-  "In-App Purchase - Auto-renewable subscription (Mac)",
-  "Redownload of iPhone-only, or iOS and tvOS app (excluding iPad-only)",
-  "Redownload of Universal app (excluding tvOS)",
-  "Redownload of iPad-only app",
-  "Redownload of Mac app"
+  "In-App Purchase - Auto-renewable subscription (iOS)"
+
 ];
 //////////////////////// 
 
@@ -132,6 +110,8 @@ function App() {
   const [hideFilters, setHideFilters] = useState(false)
   const [showApple, setShowApple] = useState(false);
   const [appleData, setAppleData] = useState(null)
+  const [appleData2, setAppleData2] = useState(null)
+
   const [appsIdMap, setAppsIdMap] = useState()
 
   const login = () => {
@@ -408,35 +388,39 @@ function App() {
 
     let reportsArr = [];
     setLoading(true);
-    let lambdaReport = await getDataFromLambda()
-    console.log("lambda done");
-    console.log("loading apple");
-    let appleReport = await getAppleDataFromLambda()
 
-    console.log(lambdaReport);
+    console.log("loading lambda...");
+    let lambdaReport = await getDataFromLambda()
+    console.log("loading apple...");
+    let appleReport = await getAppleDataFromLambda()
+    console.log("done!");
+
     setLoading(false);
-    // console.log(lambdaReport)
+
     lambdaReport.map((line) => {
       reportsArr = [...reportsArr, line]
     })
-    setAppleData(dataToArray(appleReport.data));
+
+
+
     setAppsIdMap(appleReport.appsId);
+
     appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data2), appleReport.appsId);
 
 
-    let allData = { 1456890: { "oded.Movies": { app_launch: 6, pop: 9 }, "com.aspAdblock": { app_launch: 3, pop: 0 } } }
+    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId), reportsArr);
 
     sortRep(reportsArr);
-    // daysCheck();
-    // console.log(reportsArr);
 
-    setData(reportsArr);
-    setOgData(reportsArr);
+
     getApps(reportsArr);
     generateNewEvents(reportsArr);
-    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
+    setData(reportsArr);
+    setOgData(reportsArr);
     getEvents(reportsArr);
-
+    setAppleData2(appleDataToString(dataToArray(appleReport.data), appleReport.appsId));
   }
   async function getDataFromLambda() {
     return fetch(API_KEY)
@@ -463,26 +447,35 @@ function App() {
         appleIdentifierIndex = i;
       }
     }
-
     for (const key in idMap) {
       if (!isNaN(idMap[key])) {
         idMap[key] = idMap[key].toString()
       }
     }
-    console.log(idMap);
 
-
+    let changed = false;
+    let notChanged = [];
     for (let i = 1; i < data.length; i++) {
-
+      changed = false;
       for (const key in idMap) {
         if (idMap[key] === data[i][appleIdentifierIndex]) {
           data[i][appleIdentifierIndex] = key;
+          changed = true;
           continue;
         }
       }
+      if (!changed) {
+        notChanged.push(i);
+        continue;
+      }
+    }
+    for (let i = 0; i < notChanged.length; i++) {
+      let tmp = getAppNameBySKU(data, notChanged[i], appleIdentifierIndex);
+      if (tmp != undefined) {
+        data[notChanged[i]][appleIdentifierIndex] = tmp;
+      }
     }
     for (let i = 0; i < data.length; i++) {
-      console.log("data[appleIdentifierIndex][i]" + data[i][ptyIndex]);
 
       for (const key in PRODUCT_TYPE_IDENTIFIER) {
         if (key === data[i][ptyIndex]) {
@@ -493,7 +486,25 @@ function App() {
     setAppleData(data);
     return data;
   }
+  const getAppNameBySKU = (data, index, appleIdentifierIndex) => {
+    let skuIndex = -1;
+    let parentIdentifierIndex = -1;
+    for (let i = 0; i < data[0].length; i++) {
+      if (data[0][i] === "SKU")
+        skuIndex = i;
+      if (data[0][i] === "Parent Identifier")
+        parentIdentifierIndex = i;
 
+    }
+    let parentName = data[index][parentIdentifierIndex]
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][skuIndex] === parentName && data[i][skuIndex] != "") {
+        console.log("sku:  " + data[i][appleIdentifierIndex]);
+        return data[i][appleIdentifierIndex];
+      }
+    }
+    return;
+  }
   const addAppleData = (appleData, reports) => {
     if (!appleData) {
       return;
@@ -504,8 +515,8 @@ function App() {
     let unitsIndex = -1;
     let priceIndex = -1;
     let currencyIndex = -1;
-    let newarr = appleData;
-    let dataCollected = [];
+    // let newarr = appleData;
+    // let dataCollected = [];
     for (let i = 0; i < appleData[0].length; i++) {
       if (appleData[0][i] === "Apple Identifier") {
         nameIndex = i;
@@ -543,16 +554,16 @@ function App() {
       if (!used) { /// if the same app in the same day wasnt fount add new object to data with apple data
 
         if (appleData[i][eventIndex] === "In-App Purchase - Purchase (iOS)" || appleData[i][eventIndex] === "In-App Purchase - Auto-renewable subscription (iOS)") {
-          reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString]: appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")" })
-
+          reports.push({
+            app: appleData[i][nameIndex],
+            day: convertAppleDate(appleData[i][dateIndex]),
+            [appleData[i][eventIndex].toString()]: appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")"
+          })
         } else {
           reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString]: appleData[i][unitsIndex] })
         }
       }
     }
-    console.log(convertAppleDate("11/27/2020"));
-
-
 
   }
 
@@ -572,28 +583,6 @@ function App() {
     return Math.floor(new Date(datearr[2], datearr[0] - 1, datearr[1]) / 86400000) + 1;
   }
 
-  // async function getAppleData() {
-  //   console.log('====================================');
-  //   console.log('getAppleData()');
-  //   console.log('====================================');
-
-  //   // showApple
-
-  //   // setAppleData(JSON.stringify.appleReport);
-
-  //   // console.log(appleData);
-  //   // dataToArray(appleReport);
-  //   // console.log(appleReport.toString());
-  //   // let appleArr = [];
-
-  //   // lambdaReport.map((line) => {
-  //   //   reportsArr = [...reportsArr, line]
-  //   // })
-
-
-
-
-  // }
 
   const dataToArray = (d) => {
 
@@ -719,7 +708,8 @@ function App() {
       <div>
 
       </div>
-      {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} /> */}
+      {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData2} start={start} loading={loading} /> */}
+
     </div>
   );
 }
