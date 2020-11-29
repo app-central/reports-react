@@ -384,7 +384,7 @@ function App() {
   }
 
   /////////////// data pulling 
-  async function getData() {
+  async function getData() { // pulling data from lambda and apple and arranging it in the states - main function that start everything in the app
 
     let reportsArr = [];
     setLoading(true);
@@ -400,7 +400,6 @@ function App() {
     lambdaReport.map((line) => {
       reportsArr = [...reportsArr, line]
     })
-
 
 
     setAppsIdMap(appleReport.appsId);
@@ -420,7 +419,9 @@ function App() {
     setData(reportsArr);
     setOgData(reportsArr);
     getEvents(reportsArr);
-    setAppleData2(appleDataToString(dataToArray(appleReport.data), appleReport.appsId));
+    setAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId));
+    setAppleData2(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId));
+
   }
   async function getDataFromLambda() {
     return fetch(API_KEY)
@@ -449,7 +450,7 @@ function App() {
     }
     for (const key in idMap) {
       if (!isNaN(idMap[key])) {
-        idMap[key] = idMap[key].toString()
+        idMap[key] = (idMap[key]).toString();
       }
     }
 
@@ -543,7 +544,14 @@ function App() {
             reports[j][appleData[i][eventIndex]] = appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")";
             used = true;
           } else {
-            reports[j][appleData[i][eventIndex]] = appleData[i][unitsIndex];
+            if (reports[j][appleData[i][eventIndex]]) {
+              let val = parseInt(appleData[i][unitsIndex]) + parseInt(reports[j][appleData[i][eventIndex]]);
+              reports[j][appleData[i][eventIndex]] = val;
+
+            } else {
+              reports[j][appleData[i][eventIndex]] = parseInt(appleData[i][unitsIndex]);
+
+            }
             used = true;
           }
           continue;
@@ -557,10 +565,10 @@ function App() {
           reports.push({
             app: appleData[i][nameIndex],
             day: convertAppleDate(appleData[i][dateIndex]),
-            [appleData[i][eventIndex].toString()]: appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")"
+            [(appleData[i][eventIndex]).toString()]: appleData[i][priceIndex] + " " + appleData[i][currencyIndex] + "(" + appleData[i][unitsIndex] + ")"
           })
         } else {
-          reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString]: appleData[i][unitsIndex] })
+          reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString()]: appleData[i][unitsIndex] })
         }
       }
     }
@@ -708,7 +716,9 @@ function App() {
       <div>
 
       </div>
+      <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} />
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData2} start={start} loading={loading} /> */}
+
 
     </div>
   );
