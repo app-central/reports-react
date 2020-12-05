@@ -11,7 +11,7 @@ import TableControls from './components/TableControls';
 import TimeSelection from './components/TimeSelection';
 import Header from './components/Header';
 import AppleTesting from './components/AppleTesting';
-import testUtils from 'react-dom/test-utils';
+// import testUtils from 'react-dom/test-utils';
 
 
 const button = document.querySelector('#button');
@@ -19,9 +19,7 @@ const tooltip = document.querySelector('#tooltip');
 
 
 var today2 = new Date();
-// console.log(tday);
 const today = Math.floor(Date.now() / 86400000);
-// console.log(today);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const APPLE_API_KEY = process.env.REACT_APP_DATA_APPLE_API_KEY;
 
@@ -58,7 +56,7 @@ const DEFAULT_EVENTS = [
   "paywall_loaded",
   "dismiss",
   "first_launch",
-  // "🍏 Free or paid app",
+  "🍏 Free or paid app",
   "🍏 In-App Purchase",
   "🍏 Purchase",
   "🍏 Auto-renewable subscription",
@@ -68,17 +66,11 @@ const DEFAULT_EVENTS = [
   "🍏 Redownload",
   "🍏 Redownload (Update)",
   "🍏 Restored In-App Purchase",
-  "🍏 Free or paid app",
+
   "🍏 Update",
 
 ];
 //////////////////////// 
-
-const template1 = {
-  one: "Start",
-  two: "downloads",
-  three: "subscriptions"
-}
 
 const PRODUCT_TYPE_IDENTIFIER = {
   ///https://help.apple.com/app-store-connect/#/dev63c6f4502
@@ -141,12 +133,12 @@ function App() {
   const [tFrom, settFrom] = useState(0)
   const [tTo, settTo] = useState(today)
   const [hideFilters, setHideFilters] = useState(false)
-  const [showApple, setShowApple] = useState(false);
   const [appleData, setAppleData] = useState(null)
   const [appleData2, setAppleData2] = useState(null)
   const [loadingStatus, setLoadingStatus] = useState("")
   const [appsIdMap, setAppsIdMap] = useState()
 
+  ///login functions
   const login = () => {
     if (pass === PASS_KEY) {
       getData();
@@ -163,6 +155,229 @@ function App() {
   const handleSetPass = (passowrd) => {
     setPass(passowrd)
   }
+  /////////////// data pulling 
+  async function getData() { // pulling data from lambda and apple and arranging it in the states - main function that start everything in the app
+
+    let reportsArr = [];
+    setLoading(true);
+    setLoadingStatus("Fetching data from lambda...");
+    let lambdaReport = await getDataFromLambda()
+    setLoadingStatus("Fetching data from Apple...");
+    let appleReport = await getAppleDataFromLambda()
+    setLoadingStatus("Done!");
+
+    setLoading(false);
+
+    lambdaReport.map((line) => {
+      reportsArr = [...reportsArr, line]
+    })
+    /////////{ handeling with the data from apple
+    convertPstDate(reportsArr);
+    setAppsIdMap(appleReport.appsId);
+
+    appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data2), appleReport.appsId);
+
+    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId), reportsArr);
+    ///////////////////////////////} 
+    sortRep(reportsArr);
+
+
+    getApps(reportsArr);
+    generateNewEvents(reportsArr);
+    setData(reportsArr);
+    setOgData(reportsArr);
+    getEvents(reportsArr);
+    setAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId));
+    setAppleData2(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId));
+
+  }
+  async function getDataFromLambda() {
+    return fetch(API_KEY)
+      .then(data => data.json())
+  }
+
+  ///// apple 
+  async function getAppleDataFromLambda() {
+    return fetch(APPLE_API_KEY)
+      .then(data => data.json())
+
+  }
+  const appleDataToString = (data, idMap) => {  /// change the apple identifire nuber to the bundle id, and product identifier to its description
+    let ptyIndex = -1;
+    let appleIdentifierIndex = -1;
+    for (let i = 0; i < data[0].length; i++) {
+      if (data[0][i] === "Product Type Identifier") {
+        ptyIndex = i;
+      }
+      if (data[0][i] === "Apple Identifier") {
+        appleIdentifierIndex = i;
+      }
+    }
+    for (const key in idMap) { /// some values are integers , converting them to string
+      if (!isNaN(idMap[key])) {
+        idMap[key] = (idMap[key]).toString();
+      }
+    }
+
+    let changed = false;
+    let notChanged = [];
+    for (let i = 1; i < data.length; i++) {
+      changed = false;
+      for (const key in idMap) {
+        if (idMap[key] === data[i][appleIdentifierIndex]) {
+          data[i][appleIdentifierIndex] = key;
+          changed = true;
+          continue;
+        }
+      }
+      if (!changed) {
+        notChanged.push(i);
+        continue;
+      }
+    }
+    for (let i = 0; i < notChanged.length; i++) {
+      let tmp = getAppNameBySKU(data, notChanged[i], appleIdentifierIndex);
+      if (tmp != undefined) {
+        data[notChanged[i]][appleIdentifierIndex] = tmp;
+      }
+    }
+    for (let i = 0; i < data.length; i++) {
+
+      for (const key in PRODUCT_TYPE_IDENTIFIER) {
+        if (key === data[i][ptyIndex]) {
+          data[i][ptyIndex] = PRODUCT_TYPE_IDENTIFIER[key];
+        }
+      }
+    }
+    // setAppleData(data);
+    return data;
+  }
+  const getAppNameBySKU = (data, index, appleIdentifierIndex) => { /// gets the bundle id from the parent of the event 
+    let skuIndex = -1;
+    let parentIdentifierIndex = -1;
+    for (let i = 0; i < data[0].length; i++) {
+      if (data[0][i] === "SKU")
+        skuIndex = i;
+      if (data[0][i] === "Parent Identifier")
+        parentIdentifierIndex = i;
+
+    }
+    let parentName = data[index][parentIdentifierIndex]
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][skuIndex] === parentName && data[i][skuIndex] != "") {
+        console.log("sku:  " + data[i][appleIdentifierIndex]);
+        return data[i][appleIdentifierIndex];
+      }
+    }
+    return;
+  }
+  const addAppleData = (appleData, reports) => { /// add the apple data with the rest od the report
+    if (!appleData) {
+      return;
+    }
+    let dateIndex = -1;
+    let nameIndex = -1;
+    let eventIndex = -1;
+    let unitsIndex = -1;
+    let deviceIndex = -1;
+    let priceIndex = -1;
+    let currencyIndex = -1;
+    // let newarr = appleData;
+    // let dataCollected = [];
+    for (let i = 0; i < appleData[0].length; i++) {
+      if (appleData[0][i] === "Apple Identifier") {
+        nameIndex = i;
+      } if (appleData[0][i] === "Units") {
+        unitsIndex = i;
+      } if (appleData[0][i] === "Product Type Identifier") {
+        eventIndex = i;
+      } if (appleData[0][i] === "Begin Date") {
+        dateIndex = i;
+      } if (appleData[0][i] === "Customer Price") {
+        priceIndex = i;
+      } if (appleData[0][i] === "Currency of Proceeds") {
+        currencyIndex = i;
+      } if (appleData[0][i] === "Device") {
+        deviceIndex = i;
+      }
+    }
+
+    let used = false;
+    for (let i = 1; i < appleData.length; i++) {
+      used = false;
+
+      for (let j = 0; j < reports.length; j++) {
+
+        if (reports[j].day === convertAppleDate(appleData[i][dateIndex]) && reports[j].app === appleData[i][nameIndex]) {
+          if (reports[j][appleData[i][eventIndex]]) {
+            let val = parseInt(appleData[i][unitsIndex]) + parseInt(reports[j][appleData[i][eventIndex]]);
+            reports[j][appleData[i][eventIndex]] = val;
+          } else {
+            reports[j][appleData[i][eventIndex]] = parseInt(appleData[i][unitsIndex]);
+
+          }
+          used = true;
+
+        }
+      }
+
+
+      if (!used) { /// if the same app in the same day wasnt fount add new object to data with apple data
+        reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString()]: appleData[i][unitsIndex] });
+
+      }
+    }
+
+  }
+  const convertAppleDate = (appleDate) => { /// change the date from apple to unix time like the rest of the reports data
+    let index = 0;
+    let datearr = []
+    for (let i = 0; i < appleDate.length; i++) {
+      if (appleDate[i] === "/") {
+        datearr.push(parseInt(appleDate.substr(index, i - index), 10));
+
+        index = i + 1;
+      }
+      if (i === appleDate.length - 1) {
+        datearr.push(appleDate.substr(index, i));
+      }
+    }
+    return Math.floor(new Date(datearr[2], datearr[0] - 1, datearr[1]) / 86400000) + 1;
+  }
+  const dataToArray = (d) => { ///convert the tsv string to a 2d array 
+
+    let bigArr = [];
+    let counter = 0;
+    let arrLine = [];
+    let startIndex = 0;
+    let isSlash = false;
+
+    for (let i = 0; i < d.length; i++) {
+      if (d[i] === "\t") {
+        arrLine.push(d.substr(startIndex, i - startIndex));
+
+        startIndex = i + 1;
+        isSlash = false;
+        continue;
+      }
+      if (d[i] === "\n") {
+        arrLine.push(d.substr(startIndex, i - startIndex));
+        bigArr[counter] = arrLine;
+        arrLine = [];
+        startIndex = i + 1;
+        isSlash = false;
+        counter++
+        continue
+
+      }
+    }
+    console.log("res" + bigArr.length);
+    return bigArr;
+  }
+
+
 
   /////////////////////// time and date related functions
   const resetTimes = () => {
@@ -273,7 +488,7 @@ function App() {
     setEvents(eventsNames);
     handleObjectEvents(eventsNames)
   }
-  const setUnityEvents = () => {
+  const setUnityEvents = () => { // handler to the unity event button
     setDisplayedEvents(["start", "🍏 Free or paid app", "🍏 Subscription"]);
   }
 
@@ -360,28 +575,18 @@ function App() {
   ///////////////////////// custom Sort functions
   const sortAppByValue = (app) => {
     let tmp = "";
-    if (true) {
-      for (let j = 0; j < displayedEvents.length; j++) {
-        for (let i = 0; i < displayedEvents.length - 1; i++) {
+    tmp.substring(1, 3);
+    for (let j = 0; j < displayedEvents.length; j++) {
+      for (let i = 0; i < displayedEvents.length - 1; i++) {
 
-          if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i]] || isNaN(app[displayedEvents[i]])) {
-            tmp = displayedEvents[i];
-            displayedEvents[i] = displayedEvents[i + 1];
-            displayedEvents[i + 1] = tmp;
-          }
-        }
-      }
-    } else {
-      for (let j = 0; j < displayedEvents.length; j++) {
-        for (let i = 0; i > displayedEvents.length - 1; i++) {
-          if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i + 1]]) {
-            tmp = displayedEvents[i];
-            displayedEvents[i] = displayedEvents[i + 1];
-            displayedEvents[i + 1] = tmp;
-          }
+        if (app[displayedEvents[i]] < app[displayedEvents[i + 1]] || !app[displayedEvents[i]] || isNaN(app[displayedEvents[i]])) {
+          tmp = displayedEvents[i];
+          displayedEvents[i] = displayedEvents[i + 1];
+          displayedEvents[i + 1] = tmp;
         }
       }
     }
+
 
     setDisplayedEvents(displayedEvents);
   }
@@ -389,6 +594,7 @@ function App() {
     // displayedEvents.sort();
 
     displayedEvents.sort(
+
       function (a, b) {
         if (a.toLowerCase() < b.toLowerCase()) return -1;
         if (a.toLowerCase() > b.toLowerCase()) return 1;
@@ -440,234 +646,9 @@ function App() {
     return Math.floor(new Date(datearr[0], datearr[1] - 1, datearr[2]) / 86400000) + 1;
     new Date()
   }
-  /////////////// data pulling 
-  async function getData() { // pulling data from lambda and apple and arranging it in the states - main function that start everything in the app
-
-    let reportsArr = [];
-    setLoading(true);
-    setLoadingStatus("Fetching data from lambda...");
-    let lambdaReport = await getDataFromLambda()
-    setLoadingStatus("Fetching data from Apple...");
-    let appleReport = await getAppleDataFromLambda()
-    setLoadingStatus("Done!");
-
-    setLoading(false);
-
-    lambdaReport.map((line) => {
-      reportsArr = [...reportsArr, line]
-    })
-
-    convertPstDate(reportsArr);
-    setAppsIdMap(appleReport.appsId);
-
-    appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
-    appleDataToString(dataToArray(appleReport.data2), appleReport.appsId);
-
-    addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
-    addAppleData(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId), reportsArr);
-
-    sortRep(reportsArr);
 
 
-    getApps(reportsArr);
-    generateNewEvents(reportsArr);
-    setData(reportsArr);
-    setOgData(reportsArr);
-    getEvents(reportsArr);
-    setAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId));
-    setAppleData2(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId));
-
-  }
-  async function getDataFromLambda() {
-    return fetch(API_KEY)
-      .then(data => data.json())
-  }
-
-
-
-  ///// apple data
-  async function getAppleDataFromLambda() {
-    return fetch(APPLE_API_KEY)
-      .then(data => data.json())
-
-  }
-  const appleDataToString = (data, idMap) => {
-    let ptyIndex = -1;
-    let appleIdentifierIndex = -1;
-    for (let i = 0; i < data[0].length; i++) {
-      if (data[0][i] === "Product Type Identifier") {
-        ptyIndex = i;
-      }
-      if (data[0][i] === "Apple Identifier") {
-        appleIdentifierIndex = i;
-      }
-    }
-    for (const key in idMap) {
-      if (!isNaN(idMap[key])) {
-        idMap[key] = (idMap[key]).toString();
-      }
-    }
-
-    let changed = false;
-    let notChanged = [];
-    for (let i = 1; i < data.length; i++) {
-      changed = false;
-      for (const key in idMap) {
-        if (idMap[key] === data[i][appleIdentifierIndex]) {
-          data[i][appleIdentifierIndex] = key;
-          changed = true;
-          continue;
-        }
-      }
-      if (!changed) {
-        notChanged.push(i);
-        continue;
-      }
-    }
-    for (let i = 0; i < notChanged.length; i++) {
-      let tmp = getAppNameBySKU(data, notChanged[i], appleIdentifierIndex);
-      if (tmp != undefined) {
-        data[notChanged[i]][appleIdentifierIndex] = tmp;
-      }
-    }
-    for (let i = 0; i < data.length; i++) {
-
-      for (const key in PRODUCT_TYPE_IDENTIFIER) {
-        if (key === data[i][ptyIndex]) {
-          data[i][ptyIndex] = PRODUCT_TYPE_IDENTIFIER[key];
-        }
-      }
-    }
-    // setAppleData(data);
-    return data;
-  }
-  const getAppNameBySKU = (data, index, appleIdentifierIndex) => {
-    let skuIndex = -1;
-    let parentIdentifierIndex = -1;
-    for (let i = 0; i < data[0].length; i++) {
-      if (data[0][i] === "SKU")
-        skuIndex = i;
-      if (data[0][i] === "Parent Identifier")
-        parentIdentifierIndex = i;
-
-    }
-    let parentName = data[index][parentIdentifierIndex]
-    for (let i = 0; i < data.length; i++) {
-      if (data[i][skuIndex] === parentName && data[i][skuIndex] != "") {
-        console.log("sku:  " + data[i][appleIdentifierIndex]);
-        return data[i][appleIdentifierIndex];
-      }
-    }
-    return;
-  }
-  const addAppleData = (appleData, reports) => {
-    if (!appleData) {
-      return;
-    }
-    let dateIndex = -1;
-    let nameIndex = -1;
-    let eventIndex = -1;
-    let unitsIndex = -1;
-    let deviceIndex = -1;
-    let priceIndex = -1;
-    let currencyIndex = -1;
-    // let newarr = appleData;
-    // let dataCollected = [];
-    for (let i = 0; i < appleData[0].length; i++) {
-      if (appleData[0][i] === "Apple Identifier") {
-        nameIndex = i;
-      } if (appleData[0][i] === "Units") {
-        unitsIndex = i;
-      } if (appleData[0][i] === "Product Type Identifier") {
-        eventIndex = i;
-      } if (appleData[0][i] === "Begin Date") {
-        dateIndex = i;
-      } if (appleData[0][i] === "Customer Price") {
-        priceIndex = i;
-      } if (appleData[0][i] === "Currency of Proceeds") {
-        currencyIndex = i;
-      } if (appleData[0][i] === "Device") {
-        deviceIndex = i;
-      }
-    }
-
-    let used = false;
-    for (let i = 1; i < appleData.length; i++) {
-      used = false;
-
-      for (let j = 0; j < reports.length; j++) {
-
-        if (reports[j].day === convertAppleDate(appleData[i][dateIndex]) && reports[j].app === appleData[i][nameIndex]) {
-          if (reports[j][appleData[i][eventIndex]]) {
-            let val = parseInt(appleData[i][unitsIndex]) + parseInt(reports[j][appleData[i][eventIndex]]);
-            reports[j][appleData[i][eventIndex]] = val;
-          } else {
-            reports[j][appleData[i][eventIndex]] = parseInt(appleData[i][unitsIndex]);
-
-          }
-          used = true;
-
-        }
-      }
-
-
-      if (!used) { /// if the same app in the same day wasnt fount add new object to data with apple data
-        reports.push({ app: appleData[i][nameIndex], day: convertAppleDate(appleData[i][dateIndex]), [appleData[i][eventIndex].toString()]: appleData[i][unitsIndex] });
-
-      }
-    }
-
-  }
-  const convertAppleDate = (appleDate) => {
-    let index = 0;
-    let datearr = []
-    for (let i = 0; i < appleDate.length; i++) {
-      if (appleDate[i] === "/") {
-        datearr.push(parseInt(appleDate.substr(index, i - index), 10));
-
-        index = i + 1;
-      }
-      if (i === appleDate.length - 1) {
-        datearr.push(appleDate.substr(index, i));
-      }
-    }
-    return Math.floor(new Date(datearr[2], datearr[0] - 1, datearr[1]) / 86400000) + 1;
-  }
-
-
-  const dataToArray = (d) => {
-
-    let bigArr = [];
-    let counter = 0;
-    let arrLine = [];
-    let startIndex = 0;
-    let isSlash = false;
-
-    for (let i = 0; i < d.length; i++) {
-      if (d[i] === "\t") {
-        arrLine.push(d.substr(startIndex, i - startIndex));
-
-        startIndex = i + 1;
-        isSlash = false;
-        continue;
-      }
-      if (d[i] === "\n") {
-        arrLine.push(d.substr(startIndex, i - startIndex));
-        bigArr[counter] = arrLine;
-        arrLine = [];
-        startIndex = i + 1;
-        isSlash = false;
-        counter++
-        continue
-
-      }
-    }
-    console.log("res" + bigArr.length);
-    return bigArr;
-  }
-
-  //////////////////
-
+  ////////////////////////////
   const changeName = (name) => {
 
     let nameMap = {
@@ -713,6 +694,7 @@ function App() {
     }
     setdisplayedData(newDispData);
   }
+  //////////////////
 
   const generateNewEvents = (dataArr) => { // make new events for the rates between events
     for (let i = 0; i < dataArr.length; i++) {
@@ -731,11 +713,7 @@ function App() {
     <div className="App">
 
       <Header logout={logout} start={start} loading={loading} />
-      {/* <p>time is : {date11}</p>
-      <p>time is : {date111.toString()}</p> */}
-
       <br /> <br />
-
       <Login login={login} logout={logout} handleSetPass={handleSetPass} start={start} />
 
 
@@ -758,9 +736,6 @@ function App() {
 
       <br />
       <br />
-      <div>
-
-      </div>
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} /> */}
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData2} start={start} loading={loading} /> */}
 

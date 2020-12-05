@@ -4,20 +4,9 @@ import ArrowTooltips from './ArrowTooltips';
 import Tooltip from '@material-ui/core/Tooltip';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles'
-// import Fab from '@material-ui/core/Fab';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
-import { blue } from '@material-ui/core/colors';
 
-// const useStyles = makeStyles((theme) => ({
-//     root: {
-//         display: 'flex',
-//         '& > * + *': {
-//             marginLeft: theme.spacing(2),
-
-//         },
-//     },
-// }));
 const theme = createMuiTheme({
     palette: {
         primary: {
