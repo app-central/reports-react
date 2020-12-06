@@ -177,9 +177,21 @@ function App() {
 
     appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
     appleDataToString(dataToArray(appleReport.data2), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data3), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data4), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data5), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data6), appleReport.appsId);
+    appleDataToString(dataToArray(appleReport.data7), appleReport.appsId);
+
 
     addAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId), reportsArr);
     addAppleData(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data3), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data4), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data5), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data6), appleReport.appsId), reportsArr);
+    addAppleData(appleDataToString(dataToArray(appleReport.data7), appleReport.appsId), reportsArr);
+
     ///////////////////////////////} 
     sortRep(reportsArr);
 
