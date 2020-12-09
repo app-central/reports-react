@@ -11,6 +11,7 @@ import TableControls from './components/TableControls';
 import TimeSelection from './components/TimeSelection';
 import Header from './components/Header';
 import AppleTesting from './components/AppleTesting';
+import FacebookTest from './components/FacebookTest';
 // import testUtils from 'react-dom/test-utils';
 
 
@@ -22,7 +23,7 @@ var today2 = new Date();
 const today = Math.floor(Date.now() / 86400000);
 const API_KEY = process.env.REACT_APP_DATA_API_KEY;
 const APPLE_API_KEY = process.env.REACT_APP_DATA_APPLE_API_KEY;
-
+const FACEBOOK_API_KEY = process.env.REACT_APP_DATA_FACEBOOK_API_KEY;
 const PASS_KEY = process.env.REACT_APP_PASS_KEY;
 const DEFAULT_NEXT = ["first_launch",
   "app_launch_NATIVE",
@@ -44,6 +45,7 @@ const DEFAULT_NEXT = ["first_launch",
   "fail_NATIVE",
   "fail_SDK",
 ];
+
 const DEFAULT_EVENTS = [
   "start",
   "setup",
@@ -66,11 +68,18 @@ const DEFAULT_EVENTS = [
   "🍏 Redownload",
   "🍏 Redownload (Update)",
   "🍏 Restored In-App Purchase",
-
   "🍏 Update",
+  "🔵 Cost",
+  "🔵 Impressions",
+  "🔵 Clicks",
+  "🔵 CTR",
+  "🔵 Installs",
+  "🔵 CPI",
+
 
 ];
 //////////////////////// 
+
 
 const PRODUCT_TYPE_IDENTIFIER = {
   ///https://help.apple.com/app-store-connect/#/dev63c6f4502
@@ -137,7 +146,8 @@ function App() {
   const [appleData2, setAppleData2] = useState(null)
   const [loadingStatus, setLoadingStatus] = useState("")
   const [appsIdMap, setAppsIdMap] = useState()
-
+  const [facebookData, setFacebookData] = useState()
+  const [fbCampaigns, setFbCampaigns] = useState([])
   ///login functions
   const login = () => {
     if (pass === PASS_KEY) {
@@ -160,10 +170,16 @@ function App() {
 
     let reportsArr = [];
     setLoading(true);
-    setLoadingStatus("Fetching data from lambda...");
-    let lambdaReport = await getDataFromLambda()
-    setLoadingStatus("Fetching data from Apple...");
-    let appleReport = await getAppleDataFromLambda()
+    setLoadingStatus("Fetching SDK data...");
+    let lambdaReport = await getDataFromLambda();
+    setLoadingStatus("Fetching Apple data...");
+    let appleReport = await getAppleDataFromLambda();
+    setLoadingStatus("Fetching Facebook data...");
+
+    let facebookData = await getDataFromFacebook();
+    setFacebookData(facebookData);
+    getFbApps(facebookData);
+
     setLoadingStatus("Done!");
 
     setLoading(false);
@@ -174,6 +190,8 @@ function App() {
     /////////{ handeling with the data from apple
     convertPstDate(reportsArr);
     setAppsIdMap(appleReport.appsId);
+
+    addFbData(facebookData, reportsArr);
 
     appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
     appleDataToString(dataToArray(appleReport.data2), appleReport.appsId);
@@ -203,13 +221,102 @@ function App() {
     getEvents(reportsArr);
     setAppleData(appleDataToString(dataToArray(appleReport.data), appleReport.appsId));
     setAppleData2(appleDataToString(dataToArray(appleReport.data2), appleReport.appsId));
-
   }
   async function getDataFromLambda() {
     return fetch(API_KEY)
       .then(data => data.json())
-  }
 
+
+  }
+  ///// facebook
+  async function getDataFromFacebookApi(next) {
+    if (next != false) {
+      return fetch(next)
+        .then(data => data.json())
+    } else {
+      return fetch(FACEBOOK_API_KEY)
+        .then(data => data.json())
+    }
+
+
+  }
+  async function getDataFromFacebook() {
+    let next = false;
+    let data = [];
+    let tmp;
+    tmp = await getDataFromFacebookApi(false);
+    data = [...data, ...tmp.data];
+    console.log("test fb one", data, tmp.paginig);
+    next = tmp.paging.next;
+
+
+    while (next) {
+      tmp = await getDataFromFacebookApi(next);
+      data = [...data, ...tmp.data];
+      next = tmp.paging.next
+    }
+
+
+
+
+    console.log("test fb two", data);
+    return data;
+  }
+  const getFbApps = (data) => {
+    let fbApps = [];
+    let exist = false;
+    for (let i = 0; i < data.length; i++) {
+      exist = false
+      for (let j = 0; j < fbApps.length; j++) {
+        if (fbApps[j] === data[i].campaign_name) {
+          exist = true;
+        }
+      }
+      if (!exist)
+        fbApps = [...fbApps, data[i].campaign_name]
+
+    }
+    setFbCampaigns(fbApps);
+  }
+  const convertFacebookDate = (fbDate) => { /// change the date from apple to unix time like the rest of the reports data
+    return Math.floor(new Date(fbDate) / 86400000);
+  }
+  const addFbData = (data, reports) => {
+    for (let i = 0; i < data.length; i++) {
+      // "🔵 cost",
+      // "🔵 impressions",
+      // "🔵 clicks",
+      // "🔵 ctr",
+      // "🔵 installs",
+      // "🔵 spi",
+      reports.push({
+        app: data[i].campaign_name,
+        day: convertFacebookDate(data[i].date_start),
+
+        "🔵 Cost": data[i].spend,
+        "🔵 Impressions": data[i].impressions,
+        "🔵 Clicks": data[i].clicks,
+        "🔵 CTR": data[i].ctr,
+        "🔵 Installs": getInstalls(data[i].actions),
+        "🔵 CPI": getCPI(data[i].cost_per_action_type)
+      })
+    }
+  }
+  const getInstalls = (action) => {
+
+    for (let i = 0; i < action.length; i++) {
+      if (action[i].action_type === "mobile_app_install")
+        return action[i].value
+    }
+    return "";
+  }
+  const getCPI = (cpat) => {
+    for (let i = 0; i < cpat.length; i++) {
+      if (cpat[i].action_type === "omni_app_install")
+        return cpat[i].value
+    }
+    return "";
+  }
   ///// apple 
   async function getAppleDataFromLambda() {
     return fetch(APPLE_API_KEY)
@@ -503,7 +610,10 @@ function App() {
   const setUnityEvents = () => { // handler to the unity event button
     setDisplayedEvents(["start", "🍏 Free or paid app", "🍏 Subscription"]);
   }
-
+  const setFBEvents = () => { // handler to the unity event button
+    setDisplayedEvents(["🔵 Cost", "🔵 Impressions", "🔵 Clicks", "🔵 CTR", "🔵 Installs", "🔵 CPI",
+    ]);
+  }
   ///////////////////// apps handeling functions
   const getApps = (dataArr) => {
     let newApps = [];
@@ -552,6 +662,26 @@ function App() {
 
     setData([]);
     setDisplayedApps([]);
+  }
+  const setFBapps = () => {
+    setData([]);
+    setDisplayedApps([]);
+    let newData = []
+
+    for (let j = 0; j < fbCampaigns.length; j++) {
+
+      for (let i = 0; i < ogData.length; i++) {
+        if (ogData[i].app === fbCampaigns[j]) {
+          newData = [...newData, ogData[i]];
+        }
+      }
+    }
+
+    sortRep(newData);
+
+    setData(newData)
+
+    setDisplayedApps([...fbCampaigns]);
   }
   const addApp = (app) => {
     for (let i = 0; i < data.length; i++) {
@@ -733,11 +863,11 @@ function App() {
 
       <div className="row">
         <div className="col-6">
-          <TableControls setUnityEvents={setUnityEvents} hide={hideFilters} setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAllEvents} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
+          <TableControls setFBEvents={setFBEvents} setUnityEvents={setUnityEvents} hide={hideFilters} setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAllEvents} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
 
         </div>
         <div className="col-6">
-          <TableControls hide={hideFilters} setNextMoviesEvetns={setNextMoviesApp} head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
+          <TableControls setFBapps={setFBapps} hide={hideFilters} setNextMoviesEvetns={setNextMoviesApp} head={"Apps"} resetEvents={resetApps} clearEvents={clearApps} addAll={resetApps} start={start} loading={loading} removeEvent={removeApp} addEvent={addApp} events={apps} displayedEvents={displayedApps} />
 
         </div>
       </div>
@@ -751,7 +881,7 @@ function App() {
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} /> */}
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData2} start={start} loading={loading} /> */}
 
-
+      <FacebookTest facebookData={facebookData} />
     </div>
   );
 }
