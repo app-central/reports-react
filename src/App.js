@@ -881,7 +881,7 @@ function App() {
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData} start={start} loading={loading} /> */}
       {/* <AppleTesting idmap={PRODUCT_TYPE_IDENTIFIER} appleData={appleData2} start={start} loading={loading} /> */}
 
-      <FacebookTest facebookData={facebookData} />
+      {/* <FacebookTest facebookData={facebookData} /> */}
     </div>
   );
 }
