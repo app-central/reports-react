@@ -39,6 +39,10 @@ export default function Templates(props) {
         props.setFBEvents();
         props.setFBapps();
     }
+    const handleDefault = () => {
+        props.resetEvents();
+        props.resetApps();
+    }
     if (props.start && !props.loading) {
         return (
             <div className="templates">
@@ -46,9 +50,9 @@ export default function Templates(props) {
                 <Button variant="contained" color="primary" onClick={() => { handleFbTemplate() }}
                     classes={{ root: classes.root, label: classes.label, }}
                 >Facebook</Button>
-                {/* <Button variant="contained" color="secondary" onClick={() => { handleFbTemplate() }}
+                <Button variant="contained" onClick={() => { handleDefault() }}
                     classes={{ root: classes.root, label: classes.label, }}
-                >Facebook</Button> */}
+                >Default</Button>
             </div>
         )
     } else {

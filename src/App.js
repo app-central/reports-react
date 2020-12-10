@@ -866,7 +866,7 @@ function App() {
       <TimeSelection hide={hideFilters} loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} />
 
       <div className="row">
-        <Templates setFBEvents={setFBEvents} setFBapps={setFBapps} start={start} loading={loading} />
+        <Templates resetEvents={resetEvents} resetApps={resetApps} setFBEvents={setFBEvents} setFBapps={setFBapps} start={start} loading={loading} />
       </div>
       <div className="row">
 
