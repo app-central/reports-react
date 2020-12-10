@@ -19,7 +19,7 @@ export default function Table(props) {
 
     const [sortEvents, setSortEvents] = useState(false)
     const [highlight, setHighlight] = useState([])
-
+    const [date, setDate] = useState()
 
     const highlightCheck = (index) => {
         for (let i = 0; i < highlight.length; i++) {
@@ -75,6 +75,8 @@ export default function Table(props) {
             </div>
         )
     } else if (props.start) {
+        let d = "";
+        let dateIndxArr = [];
         return (
             <div>
 
@@ -85,12 +87,30 @@ export default function Table(props) {
                             <tr >
                                 <th className="ver-th blank-cell" > <button className="btn" onClick={() => { handleSortByName() }}>⌄</button> </th>
                                 {
+
                                     props.data.filter((app) => { return (app.day >= props.tFrom && app.day <= props.tTo) }).map((line, index) => {
-                                        return (
-                                            <th  >{line.app}    <span className="time"> {props.getDate(line.day, index)} </span><button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
-                                            </th>
-                                        )
-                                    })
+
+                                        if (index === 0) {
+
+                                        }
+                                        if (!(d === line.day)) {
+                                            dateIndxArr.push(index)
+                                            d = line.day;
+
+                                            return (
+                                                <th className="dateStart" > <span className="time"> {props.getDate(line.day, index)} </span> {line.app}    <button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
+                                                </th>
+                                            )
+                                        } else {
+                                            d = line.day;
+                                            return (
+                                                <th  >{line.app}    <button className="btn" onClick={() => { handleSort(line) }}>⌄</button>
+                                                </th>
+                                            )
+                                        }
+
+                                    }
+                                    )
                                 }
 
                                 <th></th>
@@ -109,9 +129,21 @@ export default function Table(props) {
                                         </span></th>
                                     {
                                         props.data.filter((app) => { return (app.day >= props.tFrom && app.day <= props.tTo) }).map((line, index) => {
-                                            return (
-                                                <td   >{line[event] || "n/a"}</td>
-                                            )
+
+                                            if (!(d === line.day)) {
+                                                dateIndxArr.push(index)
+                                                d = line.day;
+
+                                                return (
+                                                    <td className="dateStart" >{line[event] || "n/a"}</td>
+                                                )
+                                            } else {
+                                                d = line.day;
+                                                return (
+                                                    <td   >{line[event] || "n/a"}</td>
+                                                )
+                                            }
+
                                         })
                                     }
                                 </tr>

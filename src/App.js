@@ -70,12 +70,7 @@ const DEFAULT_EVENTS = [
   "🍏 Redownload (Update)",
   "🍏 Restored In-App Purchase",
   "🍏 Update",
-  "🔵 Cost",
-  "🔵 Impressions",
-  "🔵 Clicks",
-  "🔵 CTR",
-  "🔵 Installs",
-  "🔵 CPI",
+
 
 
 ];

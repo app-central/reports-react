@@ -12,6 +12,7 @@ body {
 
 .time {
   color: rgb(138, 21, 21);
+  font-size: 30px;
 }
 .form-box {
   text-align: left;
@@ -126,4 +127,7 @@ table {
   width: 30vw;
   height: 130px;
   padding: 20px;
+}
+.dateStart {
+  border-left: 30px solid rgb(228, 228, 228);
 }
