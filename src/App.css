@@ -118,3 +118,12 @@ table {
 .nothing {
   color: #430c58;
 }
+.templates {
+  margin: auto;
+  background-color: rgb(230, 230, 225);
+  border-radius: 5px;
+
+  width: 30vw;
+  height: 130px;
+  padding: 20px;
+}

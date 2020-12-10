@@ -51,9 +51,9 @@ export default function TableControls(props) {
                             <Button variant="contained" onClick={() => { props.setUnityEvents() }}
                             // classes={{ root: classes.root, label: classes.label, }}
                             >Unity</Button>
-                            <Button variant="contained" onClick={() => { props.setFBEvents() }}
+                            {/* <Button variant="contained" onClick={() => { props.setFBEvents() }}
                             // classes={{ root: classes.root, label: classes.label, }}
-                            >Facebook</Button>
+                            >Facebook</Button> */}
                             <Button variant="contained" onClick={props.setNextMoviesEvetns}>Next Movies</Button>
                             <Button variant="contained" onClick={props.resetEvents}>Default</Button>
                             <Button variant="contained" color="secondary" onClick={props.clearEvents}>Clear All</Button>
@@ -81,9 +81,9 @@ export default function TableControls(props) {
                     <div className="table-controls">
                         <h3>{props.head}</h3>
                         <div className={classes.root1}>
-                            <Button variant="contained" onClick={() => { props.setFBapps() }}
+                            {/* <Button variant="contained" onClick={() => { props.setFBapps() }}
                             // classes={{ root: classes.root, label: classes.label, }}
-                            >Facebook</Button>
+                            >Facebook</Button> */}
                             <Button variant="contained" onClick={props.resetEvents}>Reset</Button>
 
                             <Button variant="contained" color="secondary" onClick={props.clearEvents}>Clear All</Button>

@@ -12,6 +12,7 @@ import TimeSelection from './components/TimeSelection';
 import Header from './components/Header';
 import AppleTesting from './components/AppleTesting';
 import FacebookTest from './components/FacebookTest';
+import Templates from './components/Templates';
 // import testUtils from 'react-dom/test-utils';
 
 
@@ -870,6 +871,10 @@ function App() {
       <TimeSelection hide={hideFilters} loading={loading} start={start} resetTimes={resetTimes} handleTo={handleTo} handleFrom={handleFrom} getToday={getToday} />
 
       <div className="row">
+        <Templates setFBEvents={setFBEvents} setFBapps={setFBapps} start={start} loading={loading} />
+      </div>
+      <div className="row">
+
         <div className="col-6">
           <TableControls setFBEvents={setFBEvents} setUnityEvents={setUnityEvents} hide={hideFilters} setNextMoviesEvetns={setNextMoviesEvetns} head={"Events"} resetEvents={resetEvents} clearEvents={clearEvents} addAll={addAllEvents} start={start} loading={loading} removeEvent={removeEvent} addEvent={addEvent} events={events} displayedEvents={displayedEvents} events={events} />
 
