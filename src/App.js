@@ -289,16 +289,24 @@ function App() {
       // "🔵 ctr",
       // "🔵 installs",
       // "🔵 spi",
+      let ctr = parseFloat(data[i].ctr);
+      let cpi = parseFloat(getCPI(data[i].cost_per_action_type));
+      if (cpi) {
+        cpi = cpi.toFixed(2);
+      }
+      if (ctr) {
+        ctr = ctr.toFixed(2);
+      }
       reports.push({
         app: data[i].campaign_name,
         day: convertFacebookDate(data[i].date_start),
 
-        "🔵 Cost": data[i].spend,
+        "🔵 Cost": data[i].spend + "₪",
         "🔵 Impressions": data[i].impressions,
         "🔵 Clicks": data[i].clicks,
-        "🔵 CTR": data[i].ctr,
+        "🔵 CTR": ctr + "%",
         "🔵 Installs": getInstalls(data[i].actions),
-        "🔵 CPI": getCPI(data[i].cost_per_action_type)
+        "🔵 CPI": cpi + "₪"
       })
     }
   }
