@@ -95,7 +95,7 @@ export default function TableControls(props) {
                 )
             }
         } else {
-            return (
+            return (    
                 <div></div>
             );
         }

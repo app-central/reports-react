@@ -172,9 +172,9 @@ function App() {
     let appleReport = await getAppleDataFromLambda();
     setLoadingStatus("Fetching Facebook data...");
 
-    let facebookData = await getDataFromFacebook();
-    setFacebookData(facebookData);
-    getFbApps(facebookData);
+    // let facebookData = await getDataFromFacebook();
+    // setFacebookData(facebookData);
+    // getFbApps(facebookData);
 
     setLoadingStatus("Done!");
 
@@ -187,7 +187,7 @@ function App() {
     convertPstDate(reportsArr);
     setAppsIdMap(appleReport.appsId);
 
-    addFbData(facebookData, reportsArr);
+    // addFbData(facebookData, reportsArr);
 
     appleDataToString(dataToArray(appleReport.data), appleReport.appsId);
     appleDataToString(dataToArray(appleReport.data2), appleReport.appsId);
